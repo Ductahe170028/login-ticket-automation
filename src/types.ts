@@ -9,6 +9,7 @@ export interface Ticket {
   title: string;
   description: string;
   customerEmail: string;
+  tags?: string[];
 }
 
 export interface Employee {

@@ -79,6 +79,9 @@ tốn công gọi HR/LMS cho những ticket không liên quan.
 3. Không chứa keyword nào (vd. ticket về dashboard chậm) → `false`
 4. Viết hoa/thường khác nhau ("ĐĂNG NHẬP") → vẫn `true`
 5. Description rỗng, title rỗng → `false`, không throw lỗi
+6. Có tag `login` (kể cả khi title/description không có keyword) → `true`
+7. Tag `LOGIN` viết hoa → vẫn `true`
+8. Tag không liên quan (`exam`, `outage`) và không có keyword → `false`
 
 **Xong khi:** 5 case trên pass bằng `npm test`.
 
@@ -215,7 +218,7 @@ chạy ổn, không phụ thuộc code trong repo này.
 ## Checklist tiến độ
 
 - [x] Module 0 — Shared types
-- [ ] Module 1 — detectLoginIssue (TDD)
+- [x] Module 1 — detectLoginIssue (TDD)
 - [ ] Module 2 — processLoginTicket (TDD)
 - [ ] Module 3 — clients + utils + config
 - [ ] Module 4 — mock-services

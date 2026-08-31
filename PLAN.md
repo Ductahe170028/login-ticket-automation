@@ -219,7 +219,7 @@ chạy ổn, không phụ thuộc code trong repo này.
 
 - [x] Module 0 — Shared types
 - [x] Module 1 — detectLoginIssue (TDD)
-- [ ] Module 2 — processLoginTicket (TDD)
+- [x] Module 2 — processLoginTicket (TDD)
 - [ ] Module 3 — clients + utils + config
 - [ ] Module 4 — mock-services
 - [ ] Module 5 — server + index

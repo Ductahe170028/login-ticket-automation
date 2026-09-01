@@ -30,6 +30,7 @@ import {
   addInternalNote,
   addTagsToTicket,
   listPendingLoginTickets,
+  sendCustomerEmail,
 } from "../../../src/clients/odooClient";
 
 describe("odooClient", () => {
@@ -42,6 +43,67 @@ describe("odooClient", () => {
     mockExecuteKw.mockReset();
     mockLoggerInfo.mockClear();
     mockIsOdooRpcConfigured.mockReturnValue(false);
+  });
+
+  describe("sendCustomerEmail", () => {
+    it("Odoo chưa cấu hình → log mock, không gọi RPC", async () => {
+      await sendCustomerEmail("101", {
+        to: "teacher@mindx.edu.vn",
+        subject: "RE: Login",
+        body: "Temp password: abc",
+      });
+
+      expect(mockExecuteKw).not.toHaveBeenCalled();
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        expect.stringMatching(/101.*teacher@mindx\.edu\.vn.*RE: Login/s)
+      );
+    });
+
+    it("Odoo đã cấu hình → mail.mail gửi khách + message_post ghi lại trên ticket", async () => {
+      mockIsOdooRpcConfigured.mockReturnValue(true);
+      mockExecuteKw
+        .mockResolvedValueOnce(55)
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true);
+
+      await sendCustomerEmail("404", {
+        to: "user@mindx.edu.vn",
+        subject: "RE: Ticket #404",
+        body: "Đoạn 1.\n\nĐoạn 2.",
+      });
+
+      expect(mockExecuteKw).toHaveBeenNthCalledWith(1, "mail.mail", "create", [
+        {
+          subject: "RE: Ticket #404",
+          body_html: "<p>Đoạn 1.</p><p>Đoạn 2.</p>",
+          body: "Đoạn 1.\n\nĐoạn 2.",
+          email_to: "user@mindx.edu.vn",
+          model: "helpdesk.ticket",
+          res_id: 404,
+          auto_delete: true,
+        },
+      ]);
+      expect(mockExecuteKw).toHaveBeenNthCalledWith(2, "mail.mail", "send", [
+        [55],
+      ]);
+      expect(mockExecuteKw).toHaveBeenNthCalledWith(
+        3,
+        "helpdesk.ticket",
+        "message_post",
+        [[404]],
+        {
+          body: [
+            "Mail đã gửi cho khách",
+            "Tới: user@mindx.edu.vn",
+            "Tiêu đề: RE: Ticket #404",
+            "",
+            "Đoạn 1.\n\nĐoạn 2.",
+          ].join("\n"),
+          message_type: "comment",
+          subtype_xmlid: "mail.mt_note",
+        }
+      );
+    });
   });
 
   describe("addInternalNote", () => {

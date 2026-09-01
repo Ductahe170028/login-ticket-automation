@@ -155,7 +155,7 @@ describe("processLoginTicket", () => {
         });
         expect(mockedAddInternalNote).toHaveBeenCalledWith(
           TICKET_ID,
-          expect.stringMatching(/missing|email/i)
+          expect.stringMatching(/thiếu email/i)
         );
         expect(mockedGetEmployeeStatus).not.toHaveBeenCalled();
       }
@@ -177,7 +177,7 @@ describe("processLoginTicket", () => {
       expect(mockedGetEmployeeStatus).toHaveBeenCalledWith(CUSTOMER_EMAIL);
       expect(mockedAddInternalNote).toHaveBeenCalledWith(
         "TICKET-404",
-        expect.stringMatching(/not found|không tìm thấy|khong tim thay/i)
+        expect.stringMatching(/Không tìm thấy nhân sự/)
       );
       expect(mockedGetAccountStatus).not.toHaveBeenCalled();
       expect(mockedReactivateAccount).not.toHaveBeenCalled();
@@ -198,7 +198,7 @@ describe("processLoginTicket", () => {
       });
       expect(mockedAddInternalNote).toHaveBeenCalledWith(
         TICKET_ID,
-        expect.stringMatching(/Trần Thị B.*terminated|terminated.*Trần Thị B/i)
+        expect.stringMatching(/Trần Thị B.*đã nghỉ việc/)
       );
       expect(mockedGetAccountStatus).not.toHaveBeenCalled();
       expect(mockedReactivateAccount).not.toHaveBeenCalled();
@@ -221,7 +221,7 @@ describe("processLoginTicket", () => {
       expect(mockedGetAccountStatus).toHaveBeenCalledWith(CUSTOMER_EMAIL);
       expect(mockedAddInternalNote).toHaveBeenCalledWith(
         TICKET_ID,
-        expect.stringMatching(/LMS|account|tài khoản|tai khoan/i)
+        expect.stringMatching(/Không tìm thấy tài khoản LMS/)
       );
       expect(mockedReactivateAccount).not.toHaveBeenCalled();
       expect(mockedResetPassword).not.toHaveBeenCalled();
@@ -249,12 +249,13 @@ describe("processLoginTicket", () => {
       expect(mockedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           to: CUSTOMER_EMAIL,
-          body: expect.stringContaining("NewPass456!"),
+          subject: "RE: Không thể đăng nhập vào LMS",
+          body: expect.stringMatching(/kích hoạt lại.*NewPass456!/s),
         })
       );
       expect(mockedAddInternalNote).toHaveBeenCalledWith(
         TICKET_ID,
-        expect.stringMatching(/reactivat|kích hoạt|kich hoat/i)
+        expect.stringMatching(/kích hoạt lại/)
       );
     });
   });
@@ -275,13 +276,13 @@ describe("processLoginTicket", () => {
       expect(mockedReactivateAccount).not.toHaveBeenCalled();
       expect(mockedAddInternalNote).toHaveBeenCalledWith(
         "TICKET-777",
-        expect.stringMatching(/reset|password/i)
+        expect.stringMatching(/reset mật khẩu/)
       );
       expect(mockedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           to: CUSTOMER_EMAIL,
-          subject: expect.stringContaining("TICKET-777"),
-          body: expect.stringContaining("OnlyReset789!"),
+          subject: "RE: Không thể đăng nhập vào LMS",
+          body: expect.stringMatching(/reset mật khẩu.*OnlyReset789!/s),
         })
       );
     });

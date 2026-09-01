@@ -8,6 +8,17 @@ import { addInternalNote } from "../clients/odooClient";
 import type { ProcessResult, Ticket } from "../types";
 import { sendEmail } from "../utils/emailSender";
 import { isLoginIssue } from "./detectLoginIssue";
+import {
+  buildCustomerEmailSubject,
+  buildReactivateCustomerEmail,
+  buildResetPasswordCustomerEmail,
+  noteEmployeeNotFound,
+  noteEmployeeTerminated,
+  noteLmsAccountNotFound,
+  noteMissingCustomerEmail,
+  notePasswordReset,
+  noteReactivatedAndReset,
+} from "./loginTicketMessages";
 
 export async function processLoginTicket(
   ticket: Ticket
@@ -20,51 +31,42 @@ export async function processLoginTicket(
   const email = customerEmail.trim();
 
   if (!email) {
-    await addInternalNote(
-      ticketId,
-      "Missing customer email on ticket. Manual review required."
-    );
+    await addInternalNote(ticketId, noteMissingCustomerEmail());
     return { handled: false, reason: "missing_customer_email" };
   }
 
   const employee = await getEmployeeStatus(email);
   if (!employee) {
-    await addInternalNote(
-      ticketId,
-      `Employee not found in HR for email ${email}. Manual review required.`
-    );
+    await addInternalNote(ticketId, noteEmployeeNotFound(email));
     return { handled: false, reason: "employee_not_found" };
   }
 
   if (employee.status === "terminated") {
     await addInternalNote(
       ticketId,
-      `Employee ${employee.fullName} is terminated. Escalate for manual review — do not reactivate LMS account.`
+      noteEmployeeTerminated(employee.fullName)
     );
     return { handled: false, reason: "employee_terminated" };
   }
 
   const lmsAccount = await getAccountStatus(email);
   if (!lmsAccount) {
-    await addInternalNote(
-      ticketId,
-      `No LMS account found for ${email}. Manual review required.`
-    );
+    await addInternalNote(ticketId, noteLmsAccountNotFound(email));
     return { handled: false, reason: "lms_account_not_found" };
   }
+
+  const emailSubject = buildCustomerEmailSubject(ticket.title);
 
   if (lmsAccount.accountStatus === "deactivated") {
     await reactivateAccount(email);
     const { tempPassword } = await resetPassword(email);
 
-    await addInternalNote(
-      ticketId,
-      `Reactivated LMS account for ${email} and reset password.`
-    );
+    await addInternalNote(ticketId, noteReactivatedAndReset(email));
     await sendEmail({
+      ticketId,
       to: email,
-      subject: `RE: ${ticket.title} - Ticket #${ticketId}`,
-      body: `Your LMS account has been reactivated. Temporary password: ${tempPassword}`,
+      subject: emailSubject,
+      body: buildReactivateCustomerEmail(employee.fullName, tempPassword),
     });
 
     return {
@@ -75,14 +77,12 @@ export async function processLoginTicket(
 
   const { tempPassword } = await resetPassword(email);
 
-  await addInternalNote(
-    ticketId,
-    `Reset LMS password for ${email}.`
-  );
+  await addInternalNote(ticketId, notePasswordReset(email));
   await sendEmail({
+    ticketId,
     to: email,
-    subject: `RE: ${ticket.title} - Ticket #${ticketId}`,
-    body: `Your LMS password has been reset. Temporary password: ${tempPassword}`,
+    subject: emailSubject,
+    body: buildResetPasswordCustomerEmail(employee.fullName, tempPassword),
   });
 
   return { handled: true, action: "reset_password" };

@@ -1,3 +1,14 @@
+const mockSendCustomerEmail = jest.fn();
+const mockIsOdooRpcConfigured = jest.fn();
+
+jest.mock("../../../src/clients/odooClient", () => ({
+  sendCustomerEmail: (...args: unknown[]) => mockSendCustomerEmail(...args),
+}));
+
+jest.mock("../../../src/clients/odooRpc", () => ({
+  isOdooRpcConfigured: () => mockIsOdooRpcConfigured(),
+}));
+
 jest.mock("../../../src/utils/logger", () => ({
   logger: {
     info: jest.fn(),
@@ -13,35 +24,41 @@ const mockedLoggerInfo = jest.mocked(logger.info);
 describe("emailSender.sendEmail", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsOdooRpcConfigured.mockReturnValue(false);
+    mockSendCustomerEmail.mockResolvedValue(undefined);
   });
 
-  it("ghi log với to, subject, body — không throw", async () => {
+  it("Odoo chưa cấu hình → log mock, không gọi Odoo", async () => {
     const input = {
+      ticketId: "101",
       to: "teacher@mindx.edu.vn",
-      subject: "RE: Không thể đăng nhập - Ticket #TICKET-101",
+      subject: "RE: Không thể đăng nhập - Ticket #101",
       body: "Temporary password: TempPass123!",
     };
 
     await expect(sendEmail(input)).resolves.toBeUndefined();
 
+    expect(mockSendCustomerEmail).not.toHaveBeenCalled();
     expect(mockedLoggerInfo).toHaveBeenCalledWith(
-      expect.stringMatching(/teacher@mindx\.edu\.vn/)
-    );
-    expect(mockedLoggerInfo).toHaveBeenCalledWith(
-      expect.stringMatching(/TempPass123!/)
+      expect.stringMatching(/ticket=101.*teacher@mindx\.edu\.vn.*TempPass123!/s)
     );
   });
 
-  it("không gửi SMTP thật (chỉ log mock)", async () => {
+  it("Odoo đã cấu hình → gửi qua sendCustomerEmail (mail server Odoo)", async () => {
+    mockIsOdooRpcConfigured.mockReturnValue(true);
+
     await sendEmail({
+      ticketId: "202",
       to: "a@b.com",
       subject: "Test",
       body: "Hello",
     });
 
-    const logMessage = mockedLoggerInfo.mock.calls[0]?.[0] ?? "";
-    expect(logMessage).toMatch(/a@b\.com/);
-    expect(logMessage).toMatch(/Test/);
-    expect(logMessage).toMatch(/Hello/);
+    expect(mockSendCustomerEmail).toHaveBeenCalledWith("202", {
+      to: "a@b.com",
+      subject: "Test",
+      body: "Hello",
+    });
+    expect(mockedLoggerInfo).not.toHaveBeenCalled();
   });
 });

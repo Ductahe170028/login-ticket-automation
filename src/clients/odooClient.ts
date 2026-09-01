@@ -1,6 +1,7 @@
 import { config } from "../config";
 import { PROCESSED_AUTOMATION_TAGS } from "../constants/automationTags";
 import type { Ticket } from "../types";
+import { buildEmailSentChatterNote, plainTextToHtmlEmail } from "../utils/odooMailFormat";
 import { logger } from "../utils/logger";
 import {
   executeKw,
@@ -107,6 +108,51 @@ function hasProcessedTag(tagNames: string[]): boolean {
   const normalized = tagNames.map((tag) => tag.toLowerCase().trim());
   return PROCESSED_AUTOMATION_TAGS.some((processedTag) =>
     normalized.includes(processedTag.toLowerCase())
+  );
+}
+
+/** Gửi email khách qua mail.mail + ghi lại nội dung trên ticket (chatter). */
+export async function sendCustomerEmail(
+  ticketId: string,
+  input: { to: string; subject: string; body: string }
+): Promise<void> {
+  if (!isOdooConfigured()) {
+    logger.info(
+      `[odoo mock] email ticket=${ticketId} to=${input.to} subject=${input.subject} body=${input.body}`
+    );
+    return;
+  }
+
+  const odooId = parseOdooTicketId(ticketId);
+  const mailId = await executeKw<number>("mail.mail", "create", [
+    {
+      subject: input.subject,
+      body_html: plainTextToHtmlEmail(input.body),
+      body: input.body,
+      email_to: input.to,
+      model: config.odooHelpdeskTicketModel,
+      res_id: odooId,
+      auto_delete: true,
+    },
+  ]);
+
+  await executeKw<boolean>("mail.mail", "send", [[mailId]]);
+
+  // Ghi lại mail đã gửi trên ticket — mail.mail alone không luôn hiện trên chatter Helpdesk.
+  await executeKw<boolean>(config.odooHelpdeskTicketModel, "message_post", [
+    [odooId],
+  ], {
+    body: buildEmailSentChatterNote({
+      to: input.to,
+      subject: input.subject,
+      body: input.body,
+    }),
+    message_type: "comment",
+    subtype_xmlid: "mail.mt_note",
+  });
+
+  logger.info(
+    `Odoo mail sent for ticket ${ticketId} (to=${input.to}, mailId=${mailId})`
   );
 }
 

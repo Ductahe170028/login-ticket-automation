@@ -5,8 +5,8 @@ import type { Employee, LmsAccount } from "../src/types";
  * Xem README — bảng email demo khi chạy npm run mock-api.
  */
 export const INITIAL_EMPLOYEES: Record<string, Employee> = {
-  "teacher@mindx.edu.vn": {
-    email: "teacher@mindx.edu.vn",
+  "ducgioibvb5@gmail.com": {
+    email: "ducgioibvb5@gmail.com",
     fullName: "Nguyễn Văn A",
     status: "active",
   },
@@ -28,8 +28,8 @@ export const INITIAL_EMPLOYEES: Record<string, Employee> = {
 };
 
 export const INITIAL_LMS_ACCOUNTS: Record<string, LmsAccount> = {
-  "teacher@mindx.edu.vn": {
-    email: "teacher@mindx.edu.vn",
+  "ducgioibvb5@gmail.com": {
+    email: "ducgioibvb5@gmail.com",
     accountStatus: "deactivated",
     lastLoginDaysAgo: 45,
   },

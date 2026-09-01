@@ -26,7 +26,16 @@ npm run dev               # terminal 2 — catch-up + webhook :3000
 npm run send-webhook -- login-deactivated --id TICKET-12345   # terminal 3 — giả Odoo gửi webhook
 ```
 
-Điền `ODOO_BASE_URL` + `ODOO_API_KEY` trong `.env` để ghi note/tag lên Odoo thật. Dùng `--id` trùng ticket ID trên Odoo.
+Điền Odoo trong `.env` (xem `.env.example`):
+
+```env
+ODOO_BASE_URL=https://anhduchelpdeskw4.odoo.com
+ODOO_API_KEY=<api-key-rpc>
+ODOO_LOGIN=<email-dang-nhap-odoo>
+```
+
+`ticket.id` trong webhook = **số ID ticket** trên Odoo Helpdesk (vd. `5`).
+
 
 ### Script demo webhook (`npm run send-webhook`)
 

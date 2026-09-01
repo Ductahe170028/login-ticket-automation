@@ -121,16 +121,15 @@ Hằng số: `src/constants/automationTags.ts`. Helper: `src/automation/resolveA
 | lmsClient | POST | `/lms/accounts/:email/reactivate` | lỗi → throw |
 | lmsClient | POST | `/lms/accounts/:email/reset-password` | trả `{ tempPassword }` |
 
-**Hợp đồng Odoo (Module 3):**
+**Hợp đồng Odoo (JSON-RPC Helpdesk):**
 
-| Hàm | Mô tả |
-|-----|--------|
-| `addInternalNote(ticketId, note)` | POST note nội bộ |
-| `addTagsToTicket(ticketId, tags)` | POST gắn tag (không duplicate nếu đã có) |
-| `listPendingLoginTickets(sinceDays?)` | GET ticket login, **không** có `auto-resolved` / `manual-review` |
+| Hàm | Odoo thật |
+|-----|-----------|
+| `addInternalNote` | `helpdesk.ticket` → `message_post` (internal note) |
+| `addTagsToTicket` | `helpdesk.tag` find/create + `write tag_ids` |
+| `listPendingLoginTickets` | `helpdesk.ticket` `search_read` (bỏ ticket đã có tag processed) |
 
-Endpoint tham khảo: `POST /api/tickets/:id/notes`, `POST /api/tickets/:id/tags`,
-`GET /api/tickets/pending-login?sinceDays=7` (mock Module 4 có thể mirror).
+Cấu hình `.env`: `ODOO_BASE_URL`, `ODOO_API_KEY`, `ODOO_LOGIN`, `ODOO_DATABASE` (tự suy từ subdomain).
 
 **Config (`.env`):**
 

@@ -30,12 +30,12 @@ describe("mock HR/LMS API", () => {
 
   it("GET employee active → 200", async () => {
     const response = await axios.get(
-      `${baseUrl}${config.hrEmployeesPath}/teacher%40mindx.edu.vn`,
+      `${baseUrl}${config.hrEmployeesPath}/ducgioibvb5%40gmail.com`,
       authHeaders
     );
 
     expect(response.data).toMatchObject({
-      email: "teacher@mindx.edu.vn",
+      email: "ducgioibvb5@gmail.com",
       status: "active",
     });
   });
@@ -51,12 +51,12 @@ describe("mock HR/LMS API", () => {
 
   it("thiếu API key → 401", async () => {
     await expect(
-      axios.get(`${baseUrl}${config.hrEmployeesPath}/teacher%40mindx.edu.vn`)
+      axios.get(`${baseUrl}${config.hrEmployeesPath}/ducgioibvb5%40gmail.com`)
     ).rejects.toMatchObject({ response: { status: 401 } });
   });
 
   it("LMS deactivated → reactivate → active", async () => {
-    const email = "teacher%40mindx.edu.vn";
+    const email = "ducgioibvb5%40gmail.com";
 
     const before = await axios.get(
       `${baseUrl}${config.lmsAccountsPath}/${email}`,

@@ -6,6 +6,11 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/+$/, "");
 }
 
+/** Trình duyệt Odoo dùng /odoo/... — JSON-RPC nằm ở domain gốc /jsonrpc */
+function normalizeOdooBaseUrl(url: string): string {
+  return trimTrailingSlash(url).replace(/\/odoo$/i, "");
+}
+
 function ensureLeadingSlash(pathSegment: string): string {
   return pathSegment.startsWith("/") ? pathSegment : `/${pathSegment}`;
 }
@@ -49,6 +54,21 @@ const DEFAULT_LOGIN_KEYWORDS = [
   "mat khau",
 ] as const;
 
+function inferOdooDatabase(baseUrl: string): string {
+  if (!baseUrl) {
+    return "";
+  }
+
+  try {
+    const hostname = new URL(baseUrl).hostname;
+    return hostname.split(".")[0] ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const odooBaseUrl = normalizeOdooBaseUrl(readString("ODOO_BASE_URL"));
+
 export const config = {
   port: readInt("PORT", 3000),
 
@@ -60,8 +80,16 @@ export const config = {
   hrApiKey: readString("HR_API_KEY"),
   lmsApiKey: readString("LMS_API_KEY"),
 
-  odooBaseUrl: trimTrailingSlash(readString("ODOO_BASE_URL")),
+  odooBaseUrl,
   odooApiKey: readString("ODOO_API_KEY"),
+  odooLogin: readString("ODOO_LOGIN"),
+  odooDatabase:
+    readString("ODOO_DATABASE") || inferOdooDatabase(odooBaseUrl),
+  odooHelpdeskTicketModel: readString(
+    "ODOO_HELPDESK_TICKET_MODEL",
+    "helpdesk.ticket"
+  ),
+  odooHelpdeskTagModel: readString("ODOO_HELPDESK_TAG_MODEL", "helpdesk.tag"),
 
   catchUpDays: readInt("CATCHUP_DAYS", 7),
 
@@ -75,9 +103,6 @@ export const config = {
   ),
   lmsAccountsPath: ensureLeadingSlash(
     readString("LMS_ACCOUNTS_PATH", "/lms/accounts")
-  ),
-  odooTicketsApiPath: ensureLeadingSlash(
-    readString("ODOO_TICKETS_API_PATH", "/api/tickets")
   ),
 
   loginKeywords: readCsv("LOGIN_KEYWORDS", DEFAULT_LOGIN_KEYWORDS),

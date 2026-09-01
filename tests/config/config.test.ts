@@ -48,7 +48,9 @@ describe("config", () => {
 
   it("ODOO_BASE_URL trống → odooBaseUrl rỗng (chế độ mock)", async () => {
     process.env.ODOO_BASE_URL = "";
-    delete process.env.ODOO_API_KEY;
+    process.env.ODOO_API_KEY = "";
+    process.env.ODOO_LOGIN = "";
+    process.env.ODOO_DATABASE = "";
 
     const { config } = await import("../../src/config");
 
@@ -74,13 +76,20 @@ describe("config", () => {
     expect(config.loginTags).toEqual(["auth", "login"]);
   });
 
-  it("đọc đường dẫn API và tag Odoo từ env", async () => {
-    process.env.HR_EMPLOYEES_PATH = "/v2/hr/employees";
-    process.env.TAG_AUTO_RESOLVED = "bot-done";
+  it("bỏ /odoo khỏi ODOO_BASE_URL (path web UI, không phải API)", async () => {
+    process.env.ODOO_BASE_URL = "https://anhduchelpdeskw4.odoo.com/odoo";
 
     const { config } = await import("../../src/config");
 
-    expect(config.hrEmployeesPath).toBe("/v2/hr/employees");
-    expect(config.tagAutoResolved).toBe("bot-done");
+    expect(config.odooBaseUrl).toBe("https://anhduchelpdeskw4.odoo.com");
+  });
+
+  it("suy ra ODOO_DATABASE từ subdomain khi không set", async () => {
+    process.env.ODOO_BASE_URL = "https://anhduchelpdeskw4.odoo.com";
+    delete process.env.ODOO_DATABASE;
+
+    const { config } = await import("../../src/config");
+
+    expect(config.odooDatabase).toBe("anhduchelpdeskw4");
   });
 });

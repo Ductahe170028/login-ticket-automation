@@ -157,9 +157,20 @@ Endpoint tham khảo: `POST /api/tickets/:id/notes`, `POST /api/tickets/:id/tags
 
 ---
 
-## Module 4 — `mock-services/`
+## Module 4 — `mock-services/` ✅
 
-HR/LMS giả + (tuỳ chọn) Odoo giả endpoint pending/tags cho integration test.
+HR/LMS giả trên **một server** (`npm run mock-api`), path đọc từ `.env` (`HR_EMPLOYEES_PATH`, `LMS_ACCOUNTS_PATH`).
+Không mock Odoo — dùng Odoo test thật.
+
+**Việc làm:**
+
+- `mock-services/server.ts` — Express, port `MOCK_API_PORT`
+- `mock-services/routes/hrRoutes.ts`, `lmsRoutes.ts` — mount path từ `config`
+- `mock-services/fixtures.ts` — email demo (teacher, active.user, terminated, no-lms)
+- `mock-services/store.ts` — in-memory; `reactivate` đổi `accountStatus` thật
+- `tests/mock-services/mockApi.integration.test.ts` (5 case)
+
+**Xong khi:** `npm run mock-api` chạy được; `npm test` 64 pass; clients + mock dùng chung path từ `.env`.
 
 ---
 
@@ -204,8 +215,8 @@ Giả lập Odoo POST webhook (không thay catch-up production).
 - [x] Module 1 — detectLoginIssue
 - [x] Module 2 — processLoginTicket
 - [x] Module 2b — resolveAutomationTag + constants
-- [x] Module 3 — clients + utils + config (57 test pass)
-- [ ] Module 4 — mock-services
+- [x] Module 3 — clients + utils + config (59 test)
+- [x] Module 4 — mock-services HR/LMS (64 test tổng)
 - [ ] Module 5 — server + webhook + catch-up + runTicketAutomation
 - [ ] Module 6 — scripts + fixtures
 - [ ] Module 7 — Docs & pattern report

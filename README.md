@@ -11,14 +11,30 @@ Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: *
 | 2 | `processLoginTicket` | ✅ |
 | 2b | `resolveAutomationTag` + tag constants | ✅ |
 | 3 | clients, utils, config (HTTP/Odoo) | ✅ |
-| 4 | mock-services HR/LMS | ⏳ |
+| 4 | mock-services HR/LMS | ✅ |
 | 5 | webhook + catch-up on startup | ⏳ |
 | 6 | scripts demo E2E | ⏳ |
 | 7 | Pattern report Odoo | ⏳ |
 
-**Test:** `npm test` — 59 test pass (automation + clients + config + utils).
+**Test:** `npm test` — 64 test pass (automation + clients + config + utils + mock API).
 
 Xem `.env.example` — gồm URL API, đường dẫn endpoint, tag Odoo, keyword login, logger, `CATCHUP_DAYS`.
+
+### Mock HR/LMS (`npm run mock-api`)
+
+Một server Express, hai nhóm route (HR và LMS). Dùng khi chưa có API công ty thật.
+
+| Email | HR | LMS | Kịch bản test |
+|-------|----|-----|----------------|
+| `teacher@mindx.edu.vn` | active | deactivated | Reactivate + reset password |
+| `active.user@mindx.edu.vn` | active | active | Chỉ reset password |
+| `terminated@mindx.edu.vn` | terminated | active | Escalate manual-review |
+| `no-lms@mindx.edu.vn` | active | 404 | LMS không tồn tại |
+| email khác | 404 | — | HR không tồn tại |
+
+```bash
+npm run mock-api   # terminal 1 — port MOCK_API_PORT (mặc định 4001)
+```
 
 ## Luồng vận hành (tóm tắt)
 

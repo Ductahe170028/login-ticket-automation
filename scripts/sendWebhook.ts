@@ -1,6 +1,6 @@
 import axios from "axios";
-import { config } from "../../src/config";
-import type { Ticket } from "../../src/types";
+import { config } from "../src/config";
+import type { Ticket } from "../src/types";
 import {
   listTicketFixtures,
   loadTicketFixture,

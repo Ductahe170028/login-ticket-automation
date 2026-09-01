@@ -1,14 +1,19 @@
 import request from "supertest";
 
 jest.mock("../../../src/automation/runTicketAutomation");
+jest.mock("../../../src/clients/odooClient", () => ({
+  getTicketById: jest.fn(),
+}));
 
 import { runTicketAutomation } from "../../../src/automation/runTicketAutomation";
+import { getTicketById } from "../../../src/clients/odooClient";
 import { createApp } from "../../../src/server";
 
 const mockedRunTicketAutomation = jest.mocked(runTicketAutomation);
+const mockedGetTicketById = jest.mocked(getTicketById);
 
 const validTicket = {
-  id: "TICKET-202",
+  id: "15",
   title: "Không đăng nhập được LMS",
   description: "Quên mật khẩu",
   customerEmail: "teacher@mindx.edu.vn",
@@ -38,7 +43,7 @@ describe("webhook server", () => {
     expect(mockedRunTicketAutomation).not.toHaveBeenCalled();
   });
 
-  it("POST /webhook/odoo-ticket hợp lệ → gọi runTicketAutomation", async () => {
+  it("POST /webhook/odoo-ticket payload đủ field → gọi runTicketAutomation", async () => {
     mockedRunTicketAutomation.mockResolvedValue({
       handled: true,
       action: "reset_password",
@@ -53,6 +58,22 @@ describe("webhook server", () => {
       ok: true,
       result: { handled: true, action: "reset_password" },
     });
+    expect(mockedRunTicketAutomation).toHaveBeenCalledWith(validTicket);
+  });
+
+  it("POST /webhook/odoo-ticket chỉ có _id (Odoo webhook) → fetch ticket rồi xử lý", async () => {
+    mockedGetTicketById.mockResolvedValue(validTicket);
+    mockedRunTicketAutomation.mockResolvedValue({
+      handled: true,
+      action: "reset_password",
+    });
+
+    const response = await request(app)
+      .post("/webhook/odoo-ticket")
+      .send({ _id: 15, _model: "helpdesk.ticket" });
+
+    expect(response.status).toBe(200);
+    expect(mockedGetTicketById).toHaveBeenCalledWith("15");
     expect(mockedRunTicketAutomation).toHaveBeenCalledWith(validTicket);
   });
 

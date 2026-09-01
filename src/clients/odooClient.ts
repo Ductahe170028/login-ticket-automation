@@ -204,6 +204,30 @@ export async function addTagsToTicket(
   ]);
 }
 
+export async function getTicketById(ticketId: string): Promise<Ticket | null> {
+  if (!isOdooConfigured()) {
+    return null;
+  }
+
+  const odooId = parseOdooTicketId(ticketId);
+  const records = await executeKw<HelpdeskTicketRecord[]>(
+    config.odooHelpdeskTicketModel,
+    "read",
+    [[odooId]],
+    {
+      fields: ["id", "name", "description", "partner_email", "tag_ids"],
+    }
+  );
+
+  const record = records[0];
+  if (!record) {
+    return null;
+  }
+
+  const tagNames = await getTagNamesByIds(record.tag_ids);
+  return mapHelpdeskRecordToTicket(record, tagNames);
+}
+
 export async function listPendingLoginTickets(
   sinceDays?: number
 ): Promise<Ticket[]> {

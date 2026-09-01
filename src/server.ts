@@ -1,21 +1,20 @@
 import express from "express";
 import { runTicketAutomation } from "./automation/runTicketAutomation";
-import type { Ticket } from "./types";
+import { config } from "./config";
 import { logger } from "./utils/logger";
+import {
+  resolveWebhookTicket,
+  TicketNotFoundError,
+  WebhookPayloadError,
+} from "./webhook/parseOdooWebhook";
 
-function isValidTicket(body: unknown): body is Ticket {
-  if (typeof body !== "object" || body === null) {
-    return false;
+function isWebhookAuthorized(req: express.Request): boolean {
+  if (!config.webhookSecret) {
+    return true;
   }
 
-  const candidate = body as Record<string, unknown>;
-  return (
-    typeof candidate.id === "string" &&
-    candidate.id.length > 0 &&
-    typeof candidate.title === "string" &&
-    typeof candidate.description === "string" &&
-    typeof candidate.customerEmail === "string"
-  );
+  const header = req.header("x-webhook-secret");
+  return header === config.webhookSecret;
 }
 
 export function createApp(): express.Express {
@@ -27,15 +26,26 @@ export function createApp(): express.Express {
   });
 
   app.post("/webhook/odoo-ticket", async (req, res) => {
-    if (!isValidTicket(req.body)) {
-      res.status(400).json({ error: "Invalid ticket payload" });
+    if (!isWebhookAuthorized(req)) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
     try {
-      const result = await runTicketAutomation(req.body);
+      const ticket = await resolveWebhookTicket(req.body);
+      const result = await runTicketAutomation(ticket);
       res.status(200).json({ ok: true, result });
     } catch (error) {
+      if (error instanceof WebhookPayloadError) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+
+      if (error instanceof TicketNotFoundError) {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`Webhook processing failed: ${message}`);
       res.status(500).json({ error: "Internal server error" });

@@ -15,6 +15,7 @@ Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: *
 | 5 | webhook + catch-up on startup | ✅ |
 | 6 | scripts demo E2E | ✅ |
 | 7 | Pattern report Odoo | ⏳ |
+| — | Odoo webhook + ngrok | 📄 `docs/ODOO_WEBHOOK_SETUP.md` |
 
 **Test:** `npm test` — 83 test pass.
 
@@ -23,8 +24,10 @@ Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: *
 ```bash
 npm run mock-api          # terminal 1 — HR/LMS giả
 npm run dev               # terminal 2 — catch-up + webhook :3000
-npm run send-webhook -- login-deactivated --id TICKET-12345   # terminal 3 — giả Odoo gửi webhook
+npm run send-webhook -- login-deactivated --id 15 --email ducgioibvb5@gmail.com   # terminal 3 — giả Odoo gửi webhook
 ```
+
+**Webhook Odoo thật (ngrok):** xem `docs/ODOO_WEBHOOK_SETUP.md` — Odoo chỉ cần gửi `{ "_id": 15 }`, tool tự đọc ticket qua RPC.
 
 Điền Odoo trong `.env` (xem `.env.example`):
 

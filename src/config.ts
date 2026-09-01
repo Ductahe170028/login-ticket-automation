@@ -110,4 +110,7 @@ export const config = {
 
   tagAutoResolved: readString("TAG_AUTO_RESOLVED", "auto-resolved"),
   tagManualReview: readString("TAG_MANUAL_REVIEW", "manual-review"),
+
+  /** Tùy chọn — Odoo/ngrok gửi header x-webhook-secret khớp giá trị này */
+  webhookSecret: readString("WEBHOOK_SECRET"),
 };

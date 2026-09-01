@@ -9,6 +9,7 @@
     "start": "node dist/src/index.js",
     "dev": "tsx src/index.ts",
     "mock-api": "tsx mock-services/server.ts",
+    "send-webhook": "tsx scripts/sendWebhook.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },

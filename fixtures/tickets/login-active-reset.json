@@ -1,0 +1,7 @@
+{
+  "id": "REPLACE-ODOO-TICKET-ID",
+  "title": "Quên mật khẩu LMS",
+  "description": "Giáo viên không đăng nhập được, cần reset password.",
+  "customerEmail": "active.user@mindx.edu.vn",
+  "tags": ["login", "LMS"]
+}

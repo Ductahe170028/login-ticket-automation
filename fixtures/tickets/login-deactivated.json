@@ -1,0 +1,7 @@
+{
+  "id": "REPLACE-ODOO-TICKET-ID",
+  "title": "Không thể đăng nhập vào LMS",
+  "description": "Em bị lỗi Invalid username or password.",
+  "customerEmail": "teacher@mindx.edu.vn",
+  "tags": ["login", "LMS", "teacher"]
+}

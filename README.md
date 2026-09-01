@@ -13,20 +13,37 @@ Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: *
 | 3 | clients, utils, config (HTTP/Odoo) | ✅ |
 | 4 | mock-services HR/LMS | ✅ |
 | 5 | webhook + catch-up on startup | ✅ |
-| 6 | scripts demo E2E | ⏳ |
+| 6 | scripts demo E2E | ✅ |
 | 7 | Pattern report Odoo | ⏳ |
 
-**Test:** `npm test` — 78 test pass.
+**Test:** `npm test` — 83 test pass.
 
 **Chạy end-to-end (dev):**
 
 ```bash
 npm run mock-api          # terminal 1 — HR/LMS giả
 npm run dev               # terminal 2 — catch-up + webhook :3000
-# POST ticket → http://localhost:3000/webhook/odoo-ticket
+npm run send-webhook -- login-deactivated --id TICKET-12345   # terminal 3 — giả Odoo gửi webhook
 ```
 
-Điền `ODOO_BASE_URL` + `ODOO_API_KEY` trong `.env` để ghi note/tag lên Odoo thật.
+Điền `ODOO_BASE_URL` + `ODOO_API_KEY` trong `.env` để ghi note/tag lên Odoo thật. Dùng `--id` trùng ticket ID trên Odoo.
+
+### Script demo webhook (`npm run send-webhook`)
+
+**Module 6** = giả lập bước Odoo bắn webhook, **không** thay catch-up khi server khởi động.
+
+| Fixture | Kịch bản |
+|---------|----------|
+| `login-deactivated` | teacher — reactivate + reset |
+| `login-active-reset` | active.user — chỉ reset |
+| `login-terminated` | terminated — manual-review |
+| `not-login-issue` | không phải login — bỏ qua |
+
+```bash
+npm run send-webhook                              # xem danh sách fixture
+npm run send-webhook -- login-deactivated --id TICKET-12345
+```
+
 
 Xem `.env.example` — gồm URL API, đường dẫn endpoint, tag Odoo, keyword login, logger, `CATCHUP_DAYS`.
 
@@ -82,6 +99,8 @@ npm start            # production build
 ## Cấu trúc chính
 
 ```
+fixtures/         ticket JSON demo (Module 6)
+scripts/          sendWebhook.ts
 src/
   automation/     detectLoginIssue, processLoginTicket, resolveAutomationTag, runTicketAutomation (M5)
   clients/        hr, lms, odoo (note + tags + list pending)

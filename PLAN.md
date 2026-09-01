@@ -197,9 +197,17 @@ Không mock Odoo — dùng Odoo test thật.
 
 ---
 
-## Module 6 — `scripts/` + `fixtures/` ⏳
+## Module 6 — `scripts/` + `fixtures/` ✅
 
-Giả lập Odoo POST webhook (không thay catch-up production).
+**Giả lập Odoo POST webhook** — không thay catch-up production.
+
+**Việc làm:**
+
+- `fixtures/tickets/*.json` — ticket mẫu theo kịch bản
+- `scripts/sendWebhook.ts` — đọc fixture, POST ` /webhook/odoo-ticket`
+- `npm run send-webhook -- <fixture> [--id ODOO-ID]`
+
+**Xong khi:** dev test flow mà không cần tạo ticket + cấu hình webhook Odoo mỗi lần.
 
 ---
 
@@ -216,5 +224,5 @@ Giả lập Odoo POST webhook (không thay catch-up production).
 - [x] Module 3 — clients + utils + config (59 test)
 - [x] Module 4 — mock-services HR/LMS (64 test tổng)
 - [x] Module 5 — server + webhook + catch-up + runTicketAutomation (78 test tổng)
-- [ ] Module 6 — scripts + fixtures
+- [x] Module 6 — scripts + fixtures (83 test tổng)
 - [ ] Module 7 — Docs & pattern report

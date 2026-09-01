@@ -1,0 +1,7 @@
+{
+  "id": "REPLACE-ODOO-TICKET-ID",
+  "title": "Không đăng nhập được hệ thống",
+  "description": "Nhân viên nghỉ việc nhưng vẫn thử login.",
+  "customerEmail": "terminated@mindx.edu.vn",
+  "tags": ["login"]
+}

@@ -2,226 +2,210 @@
 
 > Đọc `EXPLANATION_RULES.md` trước khi làm/giải thích bất kỳ module nào ở đây.
 > Mỗi module xong = 1 commit riêng.
+> **Luồng vận hành đã chốt** — code theo PLAN này, không bàn lại quy trình.
+
+---
+
+## Luồng vận hành (đã chốt)
+
+### Trigger chính: Webhook (Week 5 docs)
+
+Server automation **chạy nền** (`npm start` trên VM/container, không phải support mở terminal).
+Odoo gửi `POST /webhook/odoo-ticket` **ngay khi có ticket mới** → xử lý từng ticket.
+
+**Không** dùng browser extension. **Không** quét thủ công khi support nhớ chạy.
+
+### Catch-up khi server bật lại (bù ticket miss)
+
+Nếu server tắt, webhook fail → ticket tích lũy trên Odoo **chưa được automation xử lý**.
+
+Khi `npm start` lần tiếp theo, **trước khi** lắng nghe webhook:
+
+1. Gọi `odooClient.listPendingLoginTickets(catchUpDays)` — ticket login **chưa có**
+   tag `auto-resolved` hoặc `manual-review` (trong `CATCHUP_DAYS` ngày gần nhất, mặc định 7)
+2. Với mỗi ticket → `runTicketAutomation(ticket)` (xem dưới)
+3. Sau catch-up xong → mở webhook listener bình thường
+
+### Một ticket đi qua automation như thế nào
+
+```
+Ticket (webhook hoặc catch-up)
+    ↓
+Đã có tag auto-resolved / manual-review? ──YES──→ Bỏ qua (idempotent)
+    ↓ NO
+processLoginTicket(ticket)          ← Module 2: logic quyết định
+    ↓
+resolveAutomationTag(result)        ← Module 2b: map → tag Odoo
+    ↓
+not_login_issue? ──YES──→ Dừng (không gắn tag, không note bắt buộc thêm)
+    ↓ NO
+addInternalNote (đã gọi trong processLoginTicket)
+addTagsToTicket(tag)                ← Module 3 odooClient
+```
+
+### Tag Odoo — support lọc queue (không đọc terminal)
+
+| Tag | Khi nào | Support hiểu |
+|-----|---------|--------------|
+| `auto-resolved` | `handled: true` — reset/reactivate + email đã gửi | Automation xong; confirm user → đóng ticket |
+| `manual-review` | Login issue nhưng escalate (`handled: false`, mọi reason trừ `not_login_issue`) | Cần xử lý tay; đọc internal note |
+| *(không tag)* | `not_login_issue` hoặc chưa chạy automation | Catch-up sẽ pick ticket login chưa tag |
+
+Hằng số: `src/constants/automationTags.ts`. Helper: `src/automation/resolveAutomationTag.ts`.
+
+### Ai làm gì
+
+| Vai trò | Việc |
+|---------|------|
+| Dev/infra | Server luôn bật, health check, log |
+| Odoo admin | Cấu hình webhook → URL server |
+| Support | Lọc Odoo theo tag; **không** chạy `npm start` |
 
 ---
 
 ## Thứ tự tổng quan và lý do
 
 ```
-0. Shared types      -> mọi module cần nói chung 1 "ngôn ngữ" dữ liệu
-1. detectLoginIssue   -> logic đơn giản nhất, làm nóng lại nhịp TDD
-2. processLoginTicket -> lõi quyết định, TDD với client giả lập (chưa cần client thật)
-3. clients/ + utils/  -> hiện thực hoá phần gọi ra ngoài đã "hứa" ở bước 2
-4. mock-services/     -> dựng HR/LMS giả để clients có chỗ gọi thật
-5. server + index     -> ráp webhook, nơi Odoo/script chạm vào hệ thống
-6. scripts/ + fixtures -> công cụ demo tay, test end-to-end thủ công
-7. Docs & pattern report -> deliverable ngày 1-2 của Week 5 (không phải code)
+0. Shared types       -> "ngôn ngữ" dữ liệu chung
+1. detectLoginIssue    -> lọc ticket login
+2. processLoginTicket  -> logic quyết định (TDD)
+2b. resolveAutomationTag + constants -> map kết quả → tag Odoo
+3. clients/ + utils/   -> HTTP thật (HR, LMS, Odoo, email, logger)
+4. mock-services/      -> HR/LMS giả
+5. server + runner     -> webhook + catch-up on startup + gắn tag
+6. scripts/ + fixtures -> demo E2E (giả lập Odoo gửi webhook)
+7. Docs & pattern report -> Week 5 ngày 1-2 (ngoài repo)
 ```
-
-Lý do làm `processLoginTicket` (bước 2) **trước** khi có client thật (bước 3):
-logic quyết định không cần biết HR API gọi bằng axios hay gì — nó chỉ cần biết
-"gọi hàm X sẽ nhận lại kiểu dữ liệu Y". Nên có thể test đầy đủ bằng cách giả
-lập (mock) các hàm client, viết xong logic mới quay lại code phần gọi API thật.
 
 ---
 
-## Module 0 — Shared types (`src/types.ts`)
+## Module 0 — Shared types (`src/types.ts`) ✅
 
-**Giải quyết:** nếu không định nghĩa trước, mỗi module tự đoán hình dạng dữ liệu
-(ticket có field gì, HR trả về gì) — dễ lệch nhau khi ráp lại.
+**Xong khi:** `Ticket`, `Employee`, `LmsAccount`, `ProcessResult` tồn tại; `Ticket.tags?` optional.
 
-**Không cần TDD** (type không có hành vi để test).
+---
+
+## Module 1 — `detectLoginIssue` ✅
+
+**Test:** 8 case — keyword, tag `login`, false positive tag `LMS` only.
+
+---
+
+## Module 2 — `processLoginTicket` ✅
+
+**Test:** 13 case (+ `it.each`) — lọc sớm, validate email, HR/LMS, 2 happy path, thứ tự gọi.
+
+**Lưu ý:** Module 2 **chưa** gắn tag Odoo — để Module 5 `runTicketAutomation` làm sau
+`processLoginTicket` (tránh duplicate logic).
+
+---
+
+## Module 2b — Tag mapping (`resolveAutomationTag`) ✅
+
+- `src/constants/automationTags.ts`
+- `src/automation/resolveAutomationTag.ts`
+- **Test:** `tests/automation/unit/resolveAutomationTag.test.ts`
+
+---
+
+## Module 3 — `clients/`, `utils/`, `config.ts` 🔄
+
+**Giải quyết:** hiện thực HTTP + Odoo API (note, tag, list pending).
+
+**Hợp đồng HTTP HR/LMS (khớp Module 4):**
+
+| Client | Method | Endpoint | Ghi chú |
+|--------|--------|----------|---------|
+| hrClient | GET | `/hr/employees/:email` | 404 → `null` |
+| lmsClient | GET | `/lms/accounts/:email` | 404 → `null` |
+| lmsClient | POST | `/lms/accounts/:email/reactivate` | lỗi → throw |
+| lmsClient | POST | `/lms/accounts/:email/reset-password` | trả `{ tempPassword }` |
+
+**Hợp đồng Odoo (Module 3):**
+
+| Hàm | Mô tả |
+|-----|--------|
+| `addInternalNote(ticketId, note)` | POST note nội bộ |
+| `addTagsToTicket(ticketId, tags)` | POST gắn tag (không duplicate nếu đã có) |
+| `listPendingLoginTickets(sinceDays?)` | GET ticket login, **không** có `auto-resolved` / `manual-review` |
+
+Endpoint tham khảo: `POST /api/tickets/:id/notes`, `POST /api/tickets/:id/tags`,
+`GET /api/tickets/pending-login?sinceDays=7` (mock Module 4 có thể mirror).
+
+**Config (`.env`):**
+
+- `PORT`, `HR_*`, `LMS_*`, `ODOO_*`
+- `CATCHUP_DAYS=7` — lookback catch-up
 
 **Việc làm:**
 
-```ts
-export interface Ticket {
-  id: string;
-  title: string;
-  description: string;
-  customerEmail: string;
-}
+- `src/config.ts` — đọc `.env`, trim trailing slash, defaults
+- `src/clients/hrClient.ts`, `lmsClient.ts`
+- `src/clients/odooClient.ts` — 3 hàm trên
+- `src/utils/emailSender.ts`, `src/utils/logger.ts`
 
-export interface Employee {
-  email: string;
-  fullName: string;
-  status: "active" | "terminated";
-}
+**Test (24 case — Red phase đã viết):**
 
-export interface LmsAccount {
-  email: string;
-  accountStatus: "active" | "deactivated";
-  lastLoginDaysAgo: number;
-}
+- `tests/config/config.test.ts` (4) — thêm case `CATCHUP_DAYS` default 7 khi implement
+- `tests/clients/unit/hrClient.test.ts` (5)
+- `tests/clients/unit/lmsClient.test.ts` (8)
+- `tests/clients/unit/odooClient.test.ts` (2) — **mở rộng thêm** test `addTagsToTicket`, `listPendingLoginTickets` khi implement
+- `tests/utils/unit/emailSender.test.ts` (2)
+- `tests/utils/unit/logger.test.ts` (3)
 
-export interface ProcessResult {
-  handled: boolean;
-  reason?: string;
-  action?: string;
-}
-```
-
-**Xong khi:** file tồn tại, `npx tsc --noEmit` không lỗi.
-
----
-
-## Module 1 — `src/automation/detectLoginIssue.ts`
-
-**Giải quyết:** lọc xem ticket có khả năng là login issue không, trước khi
-tốn công gọi HR/LMS cho những ticket không liên quan.
-
-**Input/Output:** `(ticket: Ticket) => boolean`
-
-**Test cases cần viết trước (Red), file `tests/automation/unit/detectLoginIssue.test.ts`:**
-
-1. Title chứa "đăng nhập" → `true`
-2. Description chứa "mật khẩu" / "password" → `true`
-3. Không chứa keyword nào (vd. ticket về dashboard chậm) → `false`
-4. Viết hoa/thường khác nhau ("ĐĂNG NHẬP") → vẫn `true`
-5. Description rỗng, title rỗng → `false`, không throw lỗi
-6. Có tag `login` (kể cả khi title/description không có keyword) → `true`
-7. Tag `LOGIN` viết hoa → vẫn `true`
-8. Tag không liên quan (`exam`, `outage`) và không có keyword → `false`
-
-**Xong khi:** 5 case trên pass bằng `npm test`.
-
----
-
-## Module 2 — `src/automation/processLoginTicket.ts` (lõi)
-
-**Giải quyết:** đây là "bộ não" — nhận ticket login, quyết định reactivate,
-reset password, hay escalate, theo đúng `scenario-01-login-issue.md`.
-
-**Phụ thuộc (chỉ cần khai báo kiểu hàm, chưa cần code thật):**
-
-```ts
-hrClient.getEmployeeStatus(email: string): Promise<Employee | null>
-lmsClient.getAccountStatus(email: string): Promise<LmsAccount | null>
-lmsClient.reactivateAccount(email: string): Promise<void>
-lmsClient.resetPassword(email: string): Promise<{ tempPassword: string }>
-odooClient.addInternalNote(ticketId: string, note: string): Promise<void>
-emailSender.sendEmail(input: { to: string; subject: string; body: string }): Promise<void>
-```
-
-**Test cases cần viết trước (Red), file `tests/automation/unit/processLoginTicket.test.ts`,
-dùng `jest.mock()` cho 4 module trên:**
-
-1. Ticket không phải login issue → `{ handled: false, reason: "not_login_issue" }`,
-   **không** gọi `hrClient` (assert `not.toHaveBeenCalled()`)
-2. HR không tìm thấy nhân sự → gọi `addInternalNote`, trả `handled: false`
-3. Nhân sự `terminated` → gọi `addInternalNote` escalate, **không** gọi `reactivateAccount`
-   (đây là case quan trọng nhất — an toàn nghiệp vụ, phải test kỹ)
-4. Nhân sự active nhưng không có account LMS → ghi note, `handled: false`
-5. Nhân sự active + account `deactivated` → gọi `reactivateAccount` **và**
-   `resetPassword`, gửi email, `handled: true`, `action: "reactivated_and_reset_password"`
-6. Nhân sự active + account `active` → chỉ gọi `resetPassword`, **không** gọi
-   `reactivateAccount`
-
-**Xong khi:** 6 case trên pass, đặc biệt case 3 và 6 phải assert rõ hàm nguy hiểm
-(`reactivateAccount`) không bị gọi nhầm.
-
----
-
-## Module 3 — `src/clients/`, `src/utils/`, `src/config.ts`
-
-**Giải quyết:** hiện thực hoá thật sự các hàm đã "hứa kiểu dữ liệu" ở Module 2 —
-gọi HTTP thật (tới mock-services hoặc hệ thống thật sau này).
-
-**Việc làm:**
-
-- `src/config.ts` — đọc `.env` (base URL, API key cho HR/LMS/Odoo)
-- `src/clients/hrClient.ts` — `getEmployeeStatus`
-- `src/clients/lmsClient.ts` — `getAccountStatus`, `reactivateAccount`, `resetPassword`
-- `src/clients/odooClient.ts` — `addInternalNote` (mock/log nếu chưa có Odoo API thật)
-- `src/utils/emailSender.ts` — `sendEmail` (mock/log, chưa cần SMTP thật)
-- `src/utils/logger.ts` — ghi log ra console + file
-
-**Test (khuyến khích, không bắt buộc TDD nghiêm ngặt):** `tests/clients/unit/hrClient.test.ts`
-dùng `jest.mock("axios")` — kiểm tra gọi đúng URL, đúng header `x-api-key`,
-xử lý đúng khi API trả 404 (trả `null`, không throw).
-
-**Xong khi:** các hàm export đúng chữ ký đã định nghĩa ở Module 2 (Module 2's
-test vẫn pass khi build lại vì interface không đổi).
+**Xong khi:** 24+ test Module 3 pass; test Module 1–2 vẫn pass.
 
 ---
 
 ## Module 4 — `mock-services/`
 
-**Giải quyết:** clients ở Module 3 cần một server thật để gọi thử (không chỉ
-mock trong unit test) — vì chưa có quyền vào HR/LMS thật của công ty.
-
-**Việc làm:**
-
-- `mock-services/data.ts` — dữ liệu nhân sự + account giả (đủ 3 case: active
-  account active, active account deactivated, terminated)
-- `mock-services/server.ts` — Express, endpoint theo đúng hợp đồng Module 3:
-  - `GET /hr/employees/:email`
-  - `GET /lms/accounts/:email`
-  - `POST /lms/accounts/:email/reactivate`
-  - `POST /lms/accounts/:email/reset-password`
-  - Middleware check header `x-api-key`
-
-**Test:** không bắt buộc; có thể thêm 1-2 test nhẹ (401 khi sai key, 404 khi
-không có email) nếu muốn chắc chắn.
-
-**Xong khi:** chạy `npm run mock-api`, gọi thử bằng curl/Postman thấy đúng dữ liệu.
+HR/LMS giả + (tuỳ chọn) Odoo giả endpoint pending/tags cho integration test.
 
 ---
 
-## Module 5 — `src/server.ts` + `src/index.ts`
+## Module 5 — `server.ts`, `index.ts`, `runTicketAutomation` ⏳
 
-**Giải quyết:** đây là nơi Odoo (hoặc script giả lập) thật sự "chạm" vào hệ
-thống của bạn — nhận ticket, gọi Module 2 xử lý, trả kết quả.
-
-**Việc làm:**
-
-- `POST /webhook/odoo-ticket` — nhận body `Ticket`, validate field bắt buộc,
-  gọi `processLoginTicket`, trả JSON kết quả
-- `GET /health` — kiểm tra server sống
-- `src/index.ts` — khởi động server, đọc `config.port`
-
-**Test:** `tests/automation/integration/webhook.test.ts` dùng `supertest`,
-gửi ticket mẫu, mock `processLoginTicket` hoặc chạy thật với mock-services.
-
-**Xong khi:** `npm start` chạy, gọi webhook bằng curl thấy phản hồi đúng.
-
----
-
-## Module 6 — `scripts/` + `fixtures/`
-
-**Giải quyết:** công cụ demo tay — giả lập Odoo gửi một loạt ticket, để xem
-toàn bộ luồng end-to-end chạy đúng mà không cần Odoo thật.
+**Giải quyết:** webhook + catch-up + orchestration (note đã có trong Module 2, **tag ở đây**).
 
 **Việc làm:**
 
-- `fixtures/sample-tickets.json` — ticket mẫu, đủ nhánh (reactivate, terminated,
-  reset-only, không phải login issue)
-- `scripts/simulate-ticket.ts` — đọc fixtures, gửi lần lượt qua `axios.post`
-  tới webhook, in kết quả
+- `src/automation/runTicketAutomation.ts`:
+  - Skip nếu ticket đã có tag processed
+  - Gọi `processLoginTicket`
+  - `resolveAutomationTag` → `addTagsToTicket` nếu không null
+  - Trả `ProcessResult`
+- `src/server.ts`:
+  - `POST /webhook/odoo-ticket` — body `Ticket`, validate, `runTicketAutomation`
+  - `GET /health`
+- `src/index.ts`:
+  1. `await catchUpPendingTickets()` — loop `listPendingLoginTickets` + `runTicketAutomation`
+  2. `app.listen(config.port)`
 
-**Không cần test tự động** (theo `EXPLANATION_RULES.md` mục 20 — phần khung/
-script demo không bắt buộc TDD).
+**Test:** `tests/automation/integration/webhook.test.ts` (supertest);
+test catch-up: mock `listPendingLoginTickets` trả 2 ticket → cả 2 được xử lý + tag.
 
-**Xong khi:** chạy 3 terminal (`mock-api`, `start`, script) thấy 4 ticket mẫu
-ra đúng kết quả kỳ vọng.
+**Xong khi:** `npm start` → catch-up log → webhook nhận ticket mới → tag đúng trên Odoo (hoặc mock).
 
 ---
 
-## Module 7 — Docs & pattern report (không phải code)
+## Module 6 — `scripts/` + `fixtures/` ⏳
 
-Đây là deliverable riêng của Week 5 (ngày 1–2 trong `docs/plans/week-5/tasks.md`):
-report ticket pattern từ Odoo thật + doc phân tích. Làm sau khi automation
-chạy ổn, không phụ thuộc code trong repo này.
+Giả lập Odoo POST webhook (không thay catch-up production).
+
+---
+
+## Module 7 — Pattern report (Odoo thật) ⏳
 
 ---
 
 ## Checklist tiến độ
 
 - [x] Module 0 — Shared types
-- [x] Module 1 — detectLoginIssue (TDD)
-- [x] Module 2 — processLoginTicket (TDD)
-- [ ] Module 3 — clients + utils + config
+- [x] Module 1 — detectLoginIssue
+- [x] Module 2 — processLoginTicket
+- [x] Module 2b — resolveAutomationTag + constants
+- [ ] Module 3 — clients + utils + config (24 test Red, stub sẵn)
 - [ ] Module 4 — mock-services
-- [ ] Module 5 — server + index
+- [ ] Module 5 — server + webhook + catch-up + runTicketAutomation
 - [ ] Module 6 — scripts + fixtures
-- [ ] Module 7 — Docs & pattern report (Odoo thật)
+- [ ] Module 7 — Docs & pattern report

@@ -1,50 +1,65 @@
 # Login Ticket Automation (Week 5 — Operating Engineer)
 
-> **Trạng thái:** Skeleton — chỉ có cấu trúc thư mục + config, chưa có logic.
-> Sẽ code dần theo plan, mỗi module hoàn thành sẽ commit riêng.
+Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: **`PLAN.md`**.
 
-Tự động xử lý ticket **login issue** (Scenario 1), theo tư duy Operating
-Engineer: automation/workaround nhanh, không sửa code core LMS.
+## Trạng thái code
 
-Bám theo:
-`mindx-engineer-onboarding/docs/plans/week-4/scenarios/scenario-01-login-issue.md`
-`mindx-engineer-onboarding/docs/plans/week-5/tasks.md`
+| Module | Nội dung | Trạng thái |
+|--------|----------|------------|
+| 0 | Shared types | ✅ |
+| 1 | `detectLoginIssue` | ✅ |
+| 2 | `processLoginTicket` | ✅ |
+| 2b | `resolveAutomationTag` + tag constants | ✅ |
+| 3 | clients, utils, config (HTTP/Odoo) | 🔄 test Red (24), stub |
+| 4 | mock-services HR/LMS | ⏳ |
+| 5 | webhook + catch-up on startup | ⏳ |
+| 6 | scripts demo E2E | ⏳ |
+| 7 | Pattern report Odoo | ⏳ |
+
+**Test:** `npm test` — automation + resolveAutomationTag pass; Module 3 Red (chờ implement).
+
+## Luồng vận hành (tóm tắt)
+
+```
+[Bình thường]
+Odoo ticket mới → POST /webhook/odoo-ticket → runTicketAutomation → tag Odoo
+
+[Server vừa bật lại sau khi tắt]
+catchUpPendingTickets() → quét ticket login chưa tag → xử lý → tag
+→ rồi mới lắng nghe webhook
+```
+
+**Tag Odoo (support lọc queue):**
+
+- `auto-resolved` — đã gửi mail reset/reactivate
+- `manual-review` — escalate (terminated, not found, …)
+- Không tag — `not_login_issue` hoặc chưa chạy automation
 
 ## Stack
 
-- **TypeScript** — nhất quán với `ticket-manager-cli`, an toàn hơn khi
-  dữ liệu đi qua nhiều API (HR, LMS, Odoo).
-- **Jest + ts-jest** — viết theo TDD cho phần logic quyết định
-  (`src/automation/`), phần khung (server, mock API) test tay là đủ.
+TypeScript · Jest · axios · Express
 
-## Cấu trúc thư mục (skeleton)
+## Chạy project
 
-```
-login-ticket-automation/
-├── src/
-│   ├── automation/     # Logic nhận diện + quyết định xử lý ticket login
-│   ├── clients/        # Gọi HR API, LMS API, Odoo API
-│   └── utils/          # logger, gửi email, helper dùng chung
-├── mock-services/      # Mock HR + LMS API (giả lập hệ thống thật để test)
-├── fixtures/           # Dữ liệu ticket mẫu dùng cho test/demo
-├── scripts/            # Script chạy tay (vd. giả lập Odoo gửi webhook)
-├── tests/
-│   ├── automation/
-│   │   ├── unit/         # Test logic quyết định (TDD ở đây)
-│   │   └── integration/  # Test luồng end-to-end với mock API
-│   └── clients/
-│       └── unit/
-└── logs/                # File log tự sinh khi chạy (không commit)
+```bash
+cp .env.example .env
+npm install
+npm test
+npm run build
+npm run mock-api   # sau Module 4
+npm start          # sau Module 5 (catch-up + webhook)
 ```
 
-## Kế hoạch tiếp theo
+## Cấu trúc chính
 
-Chưa code — sẽ lên plan chi tiết từng module trước khi làm, theo thứ tự
-dự kiến (sẽ chốt cùng nhau):
+```
+src/
+  automation/     detectLoginIssue, processLoginTicket, resolveAutomationTag, runTicketAutomation (M5)
+  clients/        hr, lms, odoo (note + tags + list pending)
+  constants/      automationTags
+  config.ts
+  server.ts       Module 5
+tests/            automation/, clients/, config/, utils/
+```
 
-1. `src/automation/detectLoginIssue` — nhận diện ticket login (TDD trước)
-2. `src/automation/processLoginTicket` — logic quyết định chính (TDD trước)
-3. `mock-services/` — API giả lập HR/LMS để test được logic ở trên
-4. `src/clients/` — client gọi HR/LMS/Odoo
-5. `src/server` — webhook Express nhận ticket từ Odoo
-6. `scripts/` — mô phỏng Odoo gửi ticket để test end-to-end
+Xem `.env.example` — gồm `CATCHUP_DAYS` cho catch-up khi server khởi động lại.

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createAxiosError, TEST_CONFIG } from "../../helpers/testFixtures";
+import { createAxiosError, mockAxiosReject, TEST_CONFIG } from "../../helpers/testFixtures";
 
 jest.mock("axios");
 jest.mock("../../../src/config", () => ({
@@ -18,7 +18,7 @@ const EMPLOYEE = {
 
 describe("hrClient.getEmployeeStatus", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockedGet.mockReset();
   });
 
   it("GET đúng URL (encode email) + header x-api-key → trả Employee", async () => {
@@ -55,9 +55,11 @@ describe("hrClient.getEmployeeStatus", () => {
   });
 
   it("API 500 → throw", async () => {
-    mockedGet.mockRejectedValue(createAxiosError(500, "Internal Server Error"));
+    mockAxiosReject(mockedGet, 500, "Internal Server Error");
 
-    await expect(getEmployeeStatus("teacher@mindx.edu.vn")).rejects.toThrow();
+    await expect(getEmployeeStatus("teacher@mindx.edu.vn")).rejects.toMatchObject({
+      response: { status: 500 },
+    });
   });
 
   it("lỗi mạng (không có response) → throw", async () => {

@@ -108,7 +108,7 @@ Hằng số: `src/constants/automationTags.ts`. Helper: `src/automation/resolveA
 
 ---
 
-## Module 3 — `clients/`, `utils/`, `config.ts` 🔄
+## Module 3 — `clients/`, `utils/`, `config.ts` ✅
 
 **Giải quyết:** hiện thực HTTP + Odoo API (note, tag, list pending).
 
@@ -204,7 +204,7 @@ Giả lập Odoo POST webhook (không thay catch-up production).
 - [x] Module 1 — detectLoginIssue
 - [x] Module 2 — processLoginTicket
 - [x] Module 2b — resolveAutomationTag + constants
-- [ ] Module 3 — clients + utils + config (24 test Red, stub sẵn)
+- [x] Module 3 — clients + utils + config (57 test pass)
 - [ ] Module 4 — mock-services
 - [ ] Module 5 — server + webhook + catch-up + runTicketAutomation
 - [ ] Module 6 — scripts + fixtures

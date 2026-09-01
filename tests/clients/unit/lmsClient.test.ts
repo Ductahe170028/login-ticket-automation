@@ -1,5 +1,9 @@
 import axios from "axios";
-import { createAxiosError, TEST_CONFIG } from "../../helpers/testFixtures";
+import {
+  createAxiosError,
+  mockAxiosReject,
+  TEST_CONFIG,
+} from "../../helpers/testFixtures";
 
 jest.mock("axios");
 jest.mock("../../../src/config", () => ({
@@ -28,7 +32,8 @@ const HEADERS = { headers: { "x-api-key": "demo-secret-key" } };
 
 describe("lmsClient", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockedGet.mockReset();
+    mockedPost.mockReset();
   });
 
   describe("getAccountStatus", () => {
@@ -51,9 +56,11 @@ describe("lmsClient", () => {
     });
 
     it("API 500 → throw", async () => {
-      mockedGet.mockRejectedValue(createAxiosError(500));
+      mockAxiosReject(mockedGet, 500);
 
-      await expect(getAccountStatus(EMAIL)).rejects.toThrow();
+      await expect(getAccountStatus(EMAIL)).rejects.toMatchObject({
+        response: { status: 500 },
+      });
     });
   });
 
@@ -71,9 +78,11 @@ describe("lmsClient", () => {
     });
 
     it("API 404 → throw (account không tồn tại)", async () => {
-      mockedPost.mockRejectedValue(createAxiosError(404));
+      mockAxiosReject(mockedPost, 404);
 
-      await expect(reactivateAccount(EMAIL)).rejects.toThrow();
+      await expect(reactivateAccount(EMAIL)).rejects.toMatchObject({
+        response: { status: 404 },
+      });
     });
   });
 
@@ -101,9 +110,11 @@ describe("lmsClient", () => {
     });
 
     it("API 500 → throw", async () => {
-      mockedPost.mockRejectedValue(createAxiosError(500));
+      mockAxiosReject(mockedPost, 500);
 
-      await expect(resetPassword(EMAIL)).rejects.toThrow();
+      await expect(resetPassword(EMAIL)).rejects.toMatchObject({
+        response: { status: 500 },
+      });
     });
   });
 });

@@ -10,13 +10,15 @@ Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: *
 | 1 | `detectLoginIssue` | ✅ |
 | 2 | `processLoginTicket` | ✅ |
 | 2b | `resolveAutomationTag` + tag constants | ✅ |
-| 3 | clients, utils, config (HTTP/Odoo) | 🔄 test Red (24), stub |
+| 3 | clients, utils, config (HTTP/Odoo) | ✅ |
 | 4 | mock-services HR/LMS | ⏳ |
 | 5 | webhook + catch-up on startup | ⏳ |
 | 6 | scripts demo E2E | ⏳ |
 | 7 | Pattern report Odoo | ⏳ |
 
-**Test:** `npm test` — automation + resolveAutomationTag pass; Module 3 Red (chờ implement).
+**Test:** `npm test` — 59 test pass (automation + clients + config + utils).
+
+Xem `.env.example` — gồm URL API, đường dẫn endpoint, tag Odoo, keyword login, logger, `CATCHUP_DAYS`.
 
 ## Luồng vận hành (tóm tắt)
 

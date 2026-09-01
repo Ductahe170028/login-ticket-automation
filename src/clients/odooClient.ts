@@ -1,23 +1,60 @@
+import { config } from "../config";
 import type { Ticket } from "../types";
+import {
+  getJsonOrNullIfNotFound,
+  postOrThrow,
+} from "../utils/httpClient";
+import { logger } from "../utils/logger";
 
-/** Stub — Module 3 sẽ hiện thực ghi note lên Odoo thật. */
+function isOdooConfigured(): boolean {
+  return config.odooBaseUrl.length > 0;
+}
+
 export async function addInternalNote(
-  _ticketId: string,
-  _note: string
-): Promise<void> {}
+  ticketId: string,
+  note: string
+): Promise<void> {
+  if (!isOdooConfigured()) {
+    logger.info(`[odoo mock] note ticket=${ticketId}: ${note}`);
+    return;
+  }
 
-/** Stub — Module 3: gắn tag auto-resolved / manual-review sau xử lý. */
+  await postOrThrow(
+    `${config.odooBaseUrl}${config.odooTicketsApiPath}/${ticketId}/notes`,
+    { note },
+    config.odooApiKey
+  );
+}
+
 export async function addTagsToTicket(
-  _ticketId: string,
-  _tags: string[]
-): Promise<void> {}
+  ticketId: string,
+  tags: string[]
+): Promise<void> {
+  if (!isOdooConfigured()) {
+    logger.info(`[odoo mock] tags ticket=${ticketId}: ${tags.join(", ")}`);
+    return;
+  }
 
-/**
- * Stub — Module 3: ticket login chưa có tag automation (catch-up khi server bật lại).
- * @param sinceDays giới hạn tuổi ticket (mặc định đọc từ config)
- */
+  await postOrThrow(
+    `${config.odooBaseUrl}${config.odooTicketsApiPath}/${ticketId}/tags`,
+    { tags },
+    config.odooApiKey
+  );
+}
+
 export async function listPendingLoginTickets(
-  _sinceDays?: number
+  sinceDays?: number
 ): Promise<Ticket[]> {
-  return [];
+  if (!isOdooConfigured()) {
+    return [];
+  }
+
+  const days = sinceDays ?? config.catchUpDays;
+  const url = `${config.odooBaseUrl}${config.odooTicketsApiPath}/pending-login?sinceDays=${days}`;
+  const tickets = await getJsonOrNullIfNotFound<Ticket[]>(
+    url,
+    config.odooApiKey
+  );
+
+  return tickets ?? [];
 }

@@ -1,12 +1,88 @@
-/** Stub — Module 3 feat sẽ đọc .env đầy đủ. */
+import dotenv from "dotenv";
+
+dotenv.config();
+
+function trimTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
+function ensureLeadingSlash(pathSegment: string): string {
+  return pathSegment.startsWith("/") ? pathSegment : `/${pathSegment}`;
+}
+
+function readInt(name: string, defaultValue: number): number {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") {
+    return defaultValue;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isNaN(parsed) ? defaultValue : parsed;
+}
+
+function readString(name: string, defaultValue = ""): string {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") {
+    return defaultValue;
+  }
+  return raw;
+}
+
+function readCsv(name: string, defaultValue: readonly string[]): string[] {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") {
+    return [...defaultValue];
+  }
+
+  return raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+const DEFAULT_LOGIN_KEYWORDS = [
+  "đăng nhập",
+  "dang nhap",
+  "login",
+  "password",
+  "mật khẩu",
+  "mat khau",
+] as const;
+
 export const config = {
-  port: 3000,
-  hrApiBaseUrl: "",
-  lmsApiBaseUrl: "",
-  hrApiKey: "",
-  lmsApiKey: "",
-  odooBaseUrl: "",
-  odooApiKey: "",
-  /** Số ngày lookback khi catch-up ticket miss lúc server tắt (Module 5). */
-  catchUpDays: 7,
+  port: readInt("PORT", 3000),
+
+  mockApiPort: readInt("MOCK_API_PORT", 4001),
+  mockApiKey: readString("MOCK_API_KEY", "demo-secret-key"),
+
+  hrApiBaseUrl: trimTrailingSlash(readString("HR_API_BASE_URL")),
+  lmsApiBaseUrl: trimTrailingSlash(readString("LMS_API_BASE_URL")),
+  hrApiKey: readString("HR_API_KEY"),
+  lmsApiKey: readString("LMS_API_KEY"),
+
+  odooBaseUrl: trimTrailingSlash(readString("ODOO_BASE_URL")),
+  odooApiKey: readString("ODOO_API_KEY"),
+
+  catchUpDays: readInt("CATCHUP_DAYS", 7),
+
+  logDir: readString("LOG_DIR", "logs"),
+  logFile: readString("LOG_FILE", "app.log"),
+
+  apiKeyHeader: readString("API_KEY_HEADER", "x-api-key"),
+
+  hrEmployeesPath: ensureLeadingSlash(
+    readString("HR_EMPLOYEES_PATH", "/hr/employees")
+  ),
+  lmsAccountsPath: ensureLeadingSlash(
+    readString("LMS_ACCOUNTS_PATH", "/lms/accounts")
+  ),
+  odooTicketsApiPath: ensureLeadingSlash(
+    readString("ODOO_TICKETS_API_PATH", "/api/tickets")
+  ),
+
+  loginKeywords: readCsv("LOGIN_KEYWORDS", DEFAULT_LOGIN_KEYWORDS),
+  loginTags: readCsv("LOGIN_TAGS", ["login"]),
+
+  tagAutoResolved: readString("TAG_AUTO_RESOLVED", "auto-resolved"),
+  tagManualReview: readString("TAG_MANUAL_REVIEW", "manual-review"),
 };

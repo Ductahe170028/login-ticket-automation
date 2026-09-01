@@ -1,7 +1,9 @@
+import { config } from "../config";
+
 /** Tag Odoo gắn sau khi automation xử lý — support lọc queue. */
 export const AUTOMATION_TAG = {
-  AUTO_RESOLVED: "auto-resolved",
-  MANUAL_REVIEW: "manual-review",
+  AUTO_RESOLVED: config.tagAutoResolved,
+  MANUAL_REVIEW: config.tagManualReview,
 } as const;
 
 export type AutomationTag =

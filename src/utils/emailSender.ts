@@ -1,6 +1,11 @@
-/** Stub — Module 3 sẽ hiện thực gửi email thật. */
-export async function sendEmail(_input: {
+import { logger } from "./logger";
+
+export async function sendEmail(input: {
   to: string;
   subject: string;
   body: string;
-}): Promise<void> {}
+}): Promise<void> {
+  logger.info(
+    `[email mock] to=${input.to} subject=${input.subject} body=${input.body}`
+  );
+}

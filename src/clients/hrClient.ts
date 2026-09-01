@@ -1,8 +1,10 @@
+import { config } from "../config";
 import type { Employee } from "../types";
+import { getJsonOrNullIfNotFound } from "../utils/httpClient";
 
-/** Stub — Module 3 sẽ hiện thực gọi HR API thật. */
 export async function getEmployeeStatus(
-  _email: string
+  email: string
 ): Promise<Employee | null> {
-  return null;
+  const url = `${config.hrApiBaseUrl}${config.hrEmployeesPath}/${encodeURIComponent(email)}`;
+  return getJsonOrNullIfNotFound<Employee>(url, config.hrApiKey);
 }

@@ -63,4 +63,24 @@ describe("config", () => {
 
     expect(config.catchUpDays).toBe(7);
   });
+
+  it("đọc LOGIN_KEYWORDS và LOGIN_TAGS từ env (CSV)", async () => {
+    process.env.LOGIN_KEYWORDS = "login,forgot password";
+    process.env.LOGIN_TAGS = "auth,login";
+
+    const { config } = await import("../../src/config");
+
+    expect(config.loginKeywords).toEqual(["login", "forgot password"]);
+    expect(config.loginTags).toEqual(["auth", "login"]);
+  });
+
+  it("đọc đường dẫn API và tag Odoo từ env", async () => {
+    process.env.HR_EMPLOYEES_PATH = "/v2/hr/employees";
+    process.env.TAG_AUTO_RESOLVED = "bot-done";
+
+    const { config } = await import("../../src/config");
+
+    expect(config.hrEmployeesPath).toBe("/v2/hr/employees");
+    expect(config.tagAutoResolved).toBe("bot-done");
+  });
 });

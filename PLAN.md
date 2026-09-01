@@ -174,28 +174,26 @@ Không mock Odoo — dùng Odoo test thật.
 
 ---
 
-## Module 5 — `server.ts`, `index.ts`, `runTicketAutomation` ⏳
+## Module 5 — `server.ts`, `index.ts`, `runTicketAutomation` ✅
 
 **Giải quyết:** webhook + catch-up + orchestration (note đã có trong Module 2, **tag ở đây**).
 
 **Việc làm:**
 
-- `src/automation/runTicketAutomation.ts`:
-  - Skip nếu ticket đã có tag processed
-  - Gọi `processLoginTicket`
-  - `resolveAutomationTag` → `addTagsToTicket` nếu không null
-  - Trả `ProcessResult`
-- `src/server.ts`:
-  - `POST /webhook/odoo-ticket` — body `Ticket`, validate, `runTicketAutomation`
-  - `GET /health`
-- `src/index.ts`:
-  1. `await catchUpPendingTickets()` — loop `listPendingLoginTickets` + `runTicketAutomation`
-  2. `app.listen(config.port)`
+- `src/automation/runTicketAutomation.ts` — skip ticket đã tag, `processLoginTicket`, `addTagsToTicket`
+- `src/automation/catchUpPendingTickets.ts` — `listPendingLoginTickets` + loop
+- `src/constants/automationTags.ts` — `ticketHasProcessedTag()`
+- `src/server.ts` — `POST /webhook/odoo-ticket`, `GET /health`
+- `src/index.ts` — catch-up rồi `listen`
 
-**Test:** `tests/automation/integration/webhook.test.ts` (supertest);
-test catch-up: mock `listPendingLoginTickets` trả 2 ticket → cả 2 được xử lý + tag.
+**Test:**
 
-**Xong khi:** `npm start` → catch-up log → webhook nhận ticket mới → tag đúng trên Odoo (hoặc mock).
+- `tests/automation/unit/runTicketAutomation.test.ts` (5)
+- `tests/automation/unit/ticketHasProcessedTag.test.ts` (3)
+- `tests/automation/integration/webhook.test.ts` (4, supertest)
+- `tests/automation/integration/catchUp.test.ts` (2)
+
+**Xong khi:** `npm test` 78 pass; `npm start` catch-up + webhook listener.
 
 ---
 
@@ -217,6 +215,6 @@ Giả lập Odoo POST webhook (không thay catch-up production).
 - [x] Module 2b — resolveAutomationTag + constants
 - [x] Module 3 — clients + utils + config (59 test)
 - [x] Module 4 — mock-services HR/LMS (64 test tổng)
-- [ ] Module 5 — server + webhook + catch-up + runTicketAutomation
+- [x] Module 5 — server + webhook + catch-up + runTicketAutomation (78 test tổng)
 - [ ] Module 6 — scripts + fixtures
 - [ ] Module 7 — Docs & pattern report

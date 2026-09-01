@@ -12,11 +12,21 @@ Tự động xử lý ticket **login issue** (Scenario 1). Chi tiết luồng: *
 | 2b | `resolveAutomationTag` + tag constants | ✅ |
 | 3 | clients, utils, config (HTTP/Odoo) | ✅ |
 | 4 | mock-services HR/LMS | ✅ |
-| 5 | webhook + catch-up on startup | ⏳ |
+| 5 | webhook + catch-up on startup | ✅ |
 | 6 | scripts demo E2E | ⏳ |
 | 7 | Pattern report Odoo | ⏳ |
 
-**Test:** `npm test` — 64 test pass (automation + clients + config + utils + mock API).
+**Test:** `npm test` — 78 test pass.
+
+**Chạy end-to-end (dev):**
+
+```bash
+npm run mock-api          # terminal 1 — HR/LMS giả
+npm run dev               # terminal 2 — catch-up + webhook :3000
+# POST ticket → http://localhost:3000/webhook/odoo-ticket
+```
+
+Điền `ODOO_BASE_URL` + `ODOO_API_KEY` trong `.env` để ghi note/tag lên Odoo thật.
 
 Xem `.env.example` — gồm URL API, đường dẫn endpoint, tag Odoo, keyword login, logger, `CATCHUP_DAYS`.
 
@@ -65,7 +75,8 @@ npm install
 npm test
 npm run build
 npm run mock-api   # sau Module 4
-npm start          # sau Module 5 (catch-up + webhook)
+npm run dev          # catch-up + webhook (port PORT)
+npm start            # production build
 ```
 
 ## Cấu trúc chính

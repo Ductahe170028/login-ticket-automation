@@ -341,4 +341,5 @@ login-ticket-automation/
 
 ## Tài liệu thêm
 
+- [`docs/PATTERN_REPORT.md`](docs/PATTERN_REPORT.md) — Báo cáo phân tích pattern ticket (Week 5, ngày 1–2)
 - [`docs/ODOO_WEBHOOK_SETUP.md`](docs/ODOO_WEBHOOK_SETUP.md) — Cài ngrok và cấu hình webhook Odoo từng bước

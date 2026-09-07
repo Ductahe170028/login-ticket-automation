@@ -1,325 +1,249 @@
-# Báo cáo phân tích ticket — Technical Support
+# BÁO CÁO PHÂN TÍCH TICKET — TECHNICAL SUPPORT
 
-**Nguồn:** export Helpdesk `sample.xlsx` (plan tuần 5)  
-**Phạm vi:** 131 ticket (mã không trùng). File có 183 dòng: 1 hàng cột, 5 hàng nhóm trạng thái, 46 hàng tag phụ — không tính là ticket.  
-**Cách xếp:** mỗi phiếu vào **một** nhóm việc, theo tiêu đề + tag phụ. Cột `Tags` không dùng một mình: 64/131 trống tag; tag `CRM` / `TMS` / `LMS` chỉ nói hệ thống, không nói việc.
+**Nguồn dữ liệu:** `sample-tickets.csv` — Plan tuần 5
+**Tổng số:** 131 ticket có mã không trùng lặp.
 
-Quy tắc tách hai nhóm dễ lẫn:
-
-* **Lỗi hệ thống TMS** — TMS không hiện thông tin, mất dữ liệu, không thao tác được, hoặc tiêu đề chỉ ghi “lỗi TMS” / “check TMS”. Không nhắc công hay chấm công.
-* **Lỗi chấm công / bảng công** — không xem công, không duyệt công, bù công, phần mềm chấm công, điểm danh giáo viên, đi đúng ca bị báo trễ. Việc nằm trên TMS nhưng **việc cần xử lý là bảng công**, không phải TMS sập.
-* **Điểm danh lớp** (có mã lớp, tag LMS) xếp **LMS**, không xếp chấm công.
+> **Cách phân loại:** Ticket được phân nhóm dựa trên cả tag và nội dung Subject. Trong trường hợp tag và nội dung không đồng nhất, nội dung thực tế của ticket được ưu tiên để xác định hệ thống và loại vấn đề.
 
 ---
 
-## 1. Kết luận
+## 1. Tổng quan
 
-Ticket trong kỳ **không dồn một loại**. Nhóm việc đông nhất:
+Trong 131 ticket được ghi nhận, phần lớn vấn đề tập trung ở ba hệ thống chính: CRM, LMS và TMS.
 
-| Thứ tự | Việc | Số | Tỷ lệ |
-| --- | --- | ---: | ---: |
-| 1 | Enroll học viên vào lớp | 15 | 11% |
-| 2 | Thanh toán (QR / payment / hóa đơn) | 13 | 10% |
-| 3 | Không đăng nhập / bị khóa / quên mật khẩu | 12 | 9% |
-| 3 | Lỗi chấm công / bảng công | 12 | 9% |
+```mermaid
+pie title Ticket theo he thong (131)
+  "CRM" : 37
+  "LMS" : 26
+  "TMS" : 20
+  "Test" : 12
+  "Denise" : 8
+  "E-contract" : 7
+  "Mail" : 6
+  "Khac" : 6
+  "Crystal" : 4
+  "Ecount" : 3
+  "Noi bo" : 2
+```
 
-**Lỗi hệ thống TMS** chỉ **6 phiếu (5%)** — khác nhóm chấm công. Gộp “TMS / chấm công” sẽ làm tưởng TMS sập là nhóm lớn nhất; số thật không phải vậy.
+Ba hệ thống này chiếm **83/131 ticket, tương đương 63,4% tổng số ticket**. Ngoài ra có 12 ticket phục vụ mục đích test và các ticket liên quan đến Denise, E-contract, Mail, Crystal, Ecount và hệ thống nội bộ.
 
-12 phiếu (9%) là ticket test, không phải pattern vận hành.
-
-CRM, thanh toán và hợp đồng là **ba việc**, ba đội đóng:
-
-| Việc | Số | Việc điển hình | Đội đóng |
-| --- | ---: | --- | --- |
-| CRM — lead / gọi / sửa dữ liệu | 7 + 4 + 3 = 14 | Trạng thái lead, gọi/SMS, import, xóa field | Technical Support / CRM |
-| Thanh toán | 13 | QR, add/gỡ payment, hủy–confirm, hóa đơn | Kế toán |
-| Hợp đồng | 7 | Tạo, xem, gửi link, sai số e-contract | E-contract |
-
-**Ưu tiên**
-
-1. **Enroll (15)** — cùng thao tác add học viên / mở slot / lỗi enroll. Giảm bằng form (mã lớp, SĐT, tên) hoặc auto-reply kèm hướng dẫn.
-2. **Thanh toán (13)** — phần lớn nhờ kế toán. Chuyển đúng đội; không giữ trong hàng “ticket CRM”.
-3. **Không đăng nhập (12)** — bước xử lý giống nhau, kiểm được qua HR + LMS. Đã có workflow khi ticket sang **Đang xử lý**. Năm phiếu **cấp / chuyển tài khoản** không nằm trong workflow này.
-4. **Chấm công / bảng công (12)** — user không xem hoặc không duyệt được công. Điều tra một người hay cả cơ sở; khác hẳn 6 phiếu TMS mất dữ liệu / không thao tác.
-5. **Lỗi hệ thống TMS (6)** — có cụm tỉnh Nam 2 (không hiện thông tin, không thao tác từ ngày 31). Điều tra phạm vi rồi mới chuyển Dev.
-
-Tool login **không giảm** enroll, thanh toán, hợp đồng, chấm công hay TMS. Các hướng còn lại ở mục 6.
-
----
-
-## 2. Phạm vi dữ liệu
-
-Cột dùng được: Subject, mã ticket, người gửi, Tags, Priority, trạng thái trên bảng.
-
-Cột rating, SLA, icon gần như trống. File không ghi khoảng thời gian export và không có số người bị ảnh hưởng từng phiếu.
-
-Sáu tình huống tuần 4 dùng để đối chiếu loại vấn đề (login, LMS chậm, sự cố lớn, tính năng, nhiều user, hạn chót). **Số liệu lấy từ `sample.xlsx`, không lấy 6 phiếu luyện tập.**
-
-Danh sách mã từng nhóm: mục 9.
-
----
-
-## 3. Tổng quan vận hành
-
-### 3.1. Trạng thái
-
-| Trạng thái | Số ticket |
-| --- | ---: |
-| Resolved | 91 |
-| First Response Sent | 17 |
-| Cancelled | 12 |
-| New | 6 |
-| In Progress | 5 |
-| **Tổng** | **131** |
+Khi phân tích theo nội dung công việc, các nhóm xuất hiện nhiều nhất gồm:
 
 ```mermaid
 xychart-beta
-    title "Ticket theo trang thai (131 ticket)"
+    title "Nhom viec xuat hien nhieu nhat"
+    x-axis [Enroll, "Thanh toan CRM", "Khong dang nhap", "Cham cong TMS", Test, "Lead CRM", "Lop / GV LMS", "Hop dong"]
+    y-axis "So ticket" 0 --> 20
+    bar [15, 13, 12, 12, 12, 7, 7, 7]
+```
+
+Một vấn đề có thể xuất hiện trên nhiều hệ thống nhưng không nhất thiết có cùng cách xử lý. Vì vậy, báo cáo không gộp các ticket chỉ dựa trên tên vấn đề mà tiếp tục phân loại theo từng hệ thống.
+
+Ví dụ, enroll xuất hiện trên cả LMS và CRM nhưng thao tác xử lý nằm trên hai hệ thống khác nhau. Ngược lại, toàn bộ 13 ticket liên quan đến thanh toán trong tập dữ liệu này đều thuộc nhóm CRM.
+
+---
+
+## 2. Phân tích theo hệ thống
+
+### 2.1. CRM — 37 ticket
+
+CRM là hệ thống có số lượng ticket lớn nhất, với **37/131 ticket (28,2%)**.
+
+```mermaid
+pie title CRM theo nhom van de (37)
+  "Thanh toan" : 13
+  "Lead / trang thai" : 7
+  "Enroll" : 6
+  "Goi / SMS" : 4
+  "Sua / xuat du lieu" : 3
+  "Dropout" : 2
+  "Cap / chuyen tai khoan" : 1
+  "Khong dang nhap" : 1
+```
+
+Nhóm lớn nhất là **thanh toán với 13 ticket**, bao gồm các yêu cầu như tạo QR thanh toán, add/gỡ payment, hủy hoặc xác nhận giao dịch, cập nhật trạng thái đóng tiền, hóa đơn và mã giảm giá.
+
+Nhóm thứ hai liên quan đến **lead và trạng thái lead**, với 7 ticket. Ngoài ra, CRM có 6 ticket liên quan đến enroll và 4 ticket liên quan đến chức năng gọi/SMS.
+
+Với các nghiệp vụ có ảnh hưởng trực tiếp đến dữ liệu thanh toán hoặc dữ liệu CRM, chưa nên để công cụ tự động thay đổi dữ liệu nếu chưa có quy trình kiểm soát và quyền xử lý rõ ràng.
+
+---
+
+### 2.2. LMS — 26 ticket
+
+LMS có **26 ticket**, đứng thứ hai sau CRM.
+
+```mermaid
+pie title LMS theo nhom van de (26)
+  "Enroll" : 9
+  "Lop / giao vien / hoc phan" : 7
+  "Compass / hoc tap" : 3
+  "Cap / chuyen tai khoan" : 2
+  "Dropout" : 2
+  "Diem thuong" : 1
+  "Khong dang nhap" : 1
+  "Diem danh lop" : 1
+```
+
+Nhóm phổ biến nhất là **enroll với 9 ticket**. Nội dung chủ yếu liên quan đến thêm học viên vào lớp, không tìm thấy lớp hoặc slot enroll, enroll trùng và các lỗi trong quá trình enroll.
+
+Nhóm **lớp/giáo viên/học phần** có 7 ticket, bao gồm các vấn đề như không thêm được giáo viên, điều chỉnh lớp và lỗi liên quan đến học phần.
+
+Điểm danh lớp trên LMS được tách riêng khỏi chấm công trên TMS vì đây là hai nghiệp vụ khác nhau.
+
+---
+
+### 2.3. TMS — 20 ticket
+
+TMS có tổng cộng **20 ticket**, tập trung chủ yếu vào hai nhóm vấn đề:
+
+```mermaid
+pie title TMS theo nhom van de (20)
+  "Cham cong / bang cong" : 12
+  "Loi he thong" : 6
+  "Khong dang nhap" : 2
+```
+
+**Chấm công/bảng công** là nhóm lớn nhất với 12 ticket. Các trường hợp gồm không hiển thị công, không duyệt được công, lỗi bù công, đi đúng ca nhưng hệ thống báo trễ và các vấn đề liên quan đến điểm danh/chấm công giáo viên.
+
+Ngoài ra có **6 ticket lỗi hệ thống**, với các biểu hiện như mất dữ liệu, không hiển thị thông tin hoặc không thao tác được trên TMS.
+
+Đáng chú ý, ticket **233 và 234** cùng phản ánh lỗi tại cụm Tỉnh Nam 2, với nội dung TMS không hiển thị thông tin và không thao tác được từ ngày 31. Những trường hợp có cùng thời điểm, khu vực và triệu chứng nên được kiểm tra khả năng phát sinh từ cùng một sự cố hệ thống trước khi xử lý như các ticket độc lập.
+
+---
+
+## 3. Các vấn đề xuất hiện trên nhiều hệ thống
+
+### 3.1. Không đăng nhập/tài khoản — 12 ticket
+
+Có 12 ticket được phân vào nhóm không đăng nhập, khóa tài khoản hoặc quên mật khẩu, phân bố trên 7 hệ thống:
+
+```mermaid
+xychart-beta
+    title "Khong dang nhap theo he thong (12 ticket)"
+    x-axis [Denise, TMS, Mail, Ecount, "Noi bo", LMS, CRM]
+    y-axis "So ticket" 0 --> 4
+    bar [2, 2, 2, 2, 2, 1, 1]
+```
+
+Không có hệ thống nào chiếm phần lớn số ticket trong nhóm này. Điều này cho thấy vấn đề tài khoản xuất hiện rải rác trên nhiều hệ thống.
+
+Các ticket **cấp mới hoặc chuyển tài khoản** được tách khỏi nhóm này vì quy trình xử lý khác với trường hợp người dùng đã có tài khoản nhưng không thể đăng nhập.
+
+Workflow login đã xây dựng có thể hỗ trợ các bước kiểm tra nằm trong phạm vi dữ liệu mà workflow truy cập được. Những trường hợp thuộc hệ thống khác hoặc không đủ điều kiện xử lý tự động vẫn cần chuyển cho support kiểm tra thủ công.
+
+---
+
+### 3.2. Enroll — 15 ticket
+
+Có tổng cộng 15 ticket liên quan đến enroll, tách theo hệ thống:
+
+```mermaid
+pie title Enroll theo he thong (15)
+  "LMS" : 9
+  "CRM" : 6
+```
+
+Mặc dù cùng liên quan đến enroll học viên, hai nhóm này cần được tách riêng vì nguyên nhân và thao tác xử lý phụ thuộc vào từng hệ thống.
+
+Có thể giảm thời gian trao đổi bằng cách chuẩn hóa thông tin đầu vào của ticket, ví dụ: mã lớp, thông tin học viên, số điện thoại/mã học viên, hệ thống xảy ra lỗi và mô tả thao tác đã thực hiện.
+
+---
+
+### 3.3. Thanh toán — 13 ticket
+
+Trong tập dữ liệu hiện tại, **13 ticket được phân loại là vấn đề thanh toán đều nằm trên CRM**.
+
+```mermaid
+pie title Thanh toan theo he thong (13)
+  "CRM" : 13
+```
+
+Nội dung gồm tạo QR, add/gỡ payment, hủy hoặc xác nhận giao dịch, cập nhật trạng thái đóng tiền, hóa đơn và mã giảm giá.
+
+Đây là nhóm có số lượng lớn nhưng liên quan trực tiếp đến nghiệp vụ tài chính. Vì vậy, hướng cải tiến phù hợp trước mắt là chuẩn hóa thông tin đầu vào và quy trình chuyển xử lý, thay vì tự động thay đổi dữ liệu CRM.
+
+---
+
+## 4. Trạng thái và mức độ ưu tiên
+
+Theo các nhóm trạng thái trong file export:
+
+```mermaid
+xychart-beta
+    title "Trang thai ticket (131)"
     x-axis [Resolved, "First Response", Cancelled, New, "In Progress"]
     y-axis "So ticket" 0 --> 100
     bar [91, 17, 12, 6, 5]
 ```
 
-Đã đóng: 91/131 (~70%). Còn 28 phiếu New / First Response / In Progress.
+Có **91/131 ticket đã được Resolved**, tương đương khoảng **69,5%**.
 
-### 3.2. Mức ưu tiên
-
-| Priority | Số ticket |
-| --- | ---: |
-| High | 42 |
-| Urgent | 40 |
-| Low | 40 |
-| Medium | 9 |
-
-Urgent + High = **82/131 (~63%)**. Không có cột số user bị ảnh hưởng nên không quy Class of Service theo số người.
-
-### 3.3. Phân loại theo việc (một phiếu một nhóm)
-
-| Việc | Số | Tỷ lệ |
-| --- | ---: | ---: |
-| Enroll học viên vào lớp | 15 | 11% |
-| Thanh toán (QR / payment / hóa đơn) | 13 | 10% |
-| Không đăng nhập / bị khóa / quên mật khẩu | 12 | 9% |
-| Lỗi chấm công / bảng công | 12 | 9% |
-| Ticket test | 12 | 9% |
-| LMS (lớp, GV, học phần, Compass, điểm danh lớp) | 11 | 8% |
-| CRM — trạng thái / kiểm tra lead | 7 | 5% |
-| Hợp đồng (e-contract) | 7 | 5% |
-| Tiêu đề không đủ để xếp | 7 | 5% |
-| Lỗi hệ thống TMS | 6 | 5% |
-| Cấp hoặc chuyển tài khoản | 5 | 4% |
-| Denise / điểm thưởng | 5 | 4% |
-| CRM — gọi / SMS | 4 | 3% |
-| Cấp mail nội bộ | 4 | 3% |
-| Phiếu dropout | 4 | 3% |
-| Crystal / đặt phòng | 4 | 3% |
-| CRM — sửa dữ liệu | 3 | 2% |
-| **Tổng** | **131** | — |
-
-Tỷ lệ làm tròn theo 131 phiếu.
+Về mức độ ưu tiên:
 
 ```mermaid
-xychart-beta
-    title "Nhom viec dong nhat (khong xa TMS voi cham cong)"
-    x-axis [Enroll, "Thanh toan", "Khong dang nhap", "Cham cong", Test, LMS, "CRM lead", "Hop dong", "Loi TMS"]
-    y-axis "So ticket" 0 --> 20
-    bar [15, 13, 12, 12, 12, 11, 7, 7, 6]
+pie title Muc uu tien (131)
+  "High" : 42
+  "Urgent" : 40
+  "Low" : 40
+  "Medium" : 9
 ```
 
-Tag trên hàng ticket: CRM 23, LMS 14, TMS 9, mail 4, Denise 3, Bug 4. **23 tag CRM ≠ 23 việc CRM.** Nhiều phiếu thanh toán / enroll / hợp đồng / đăng nhập cũng gắn tag CRM.
+Nhóm **High + Urgent có 82 ticket, chiếm 62,6% tổng số ticket**.
+
+Tuy nhiên, dữ liệu export không thể hiện số lượng người dùng bị ảnh hưởng bởi từng ticket. Vì vậy chưa thể đánh giá mức độ ảnh hưởng của một sự cố chỉ dựa trên số lượng ticket và priority.
 
 ---
 
-## 4. Pattern lặp
+## 5. Đề xuất hướng xử lý
 
-### 4.1. Enroll học viên vào lớp — 15 phiếu
+### CRM — Thanh toán
 
-Add học viên, mở slot, lỗi enroll, enroll trùng lớp, sửa tên trên enrollment. Cùng một thao tác, ít khi là bug lõi.
+Có 13 ticket và là nhóm lớn nhất trên CRM.
 
-**Gốc (giả định):** BU thiếu quyền hoặc thiếu mã lớp / SĐT / tên trên phiếu.
+Trước mắt nên chuẩn hóa thông tin cần có khi tạo ticket, ví dụ mã lead, thông tin giao dịch, số tiền và nội dung cần hỗ trợ. Các thao tác thay đổi dữ liệu thanh toán cần được chuyển đến đúng bộ phận/người có quyền xử lý.
 
-### 4.2. Thanh toán — 13 phiếu
+### LMS/CRM — Enroll
 
-Không tạo QR, add / gỡ payment, hủy–confirm giao dịch trên lead, lead đã add payment vẫn L5A, chuyển trạng thái đóng tiền, mã giảm giá, sửa giá hóa đơn / order chuyển nhượng.
+Có 15 ticket, gồm 9 ticket LMS và 6 ticket CRM.
 
-**Gốc (giả định):** add trùng, confirm sai lead, thiếu mã giao dịch / số tiền. Phần lớn cần kế toán, không phải script Technical Support.
+Nên chuẩn hóa form yêu cầu với các thông tin bắt buộc như mã lớp, thông tin học viên, hệ thống gặp lỗi và mô tả lỗi. Hướng dẫn xử lý cần được viết riêng cho LMS và CRM.
 
-### 4.3. Không đăng nhập / bị khóa / quên mật khẩu — 12 phiếu
+### TMS — Chấm công
 
-Không vào được TMS, CRM, hệ thống nội bộ, Ecount; khóa Ecount; quên / cấp lại mật khẩu LMS, mail, mail TMS; tài khoản Denise lỗi (tag: HV không đăng nhập được).
+Có 12 ticket liên quan đến chấm công.
 
-Chuỗi xử lý giống nhau: còn làm việc không → có tài khoản không → mở khóa hoặc đặt mật khẩu → gửi thông tin. Dữ liệu: HR + LMS.
+Khi tiếp nhận ticket nên xác định rõ phạm vi ảnh hưởng: một nhân sự, một ca làm việc hay nhiều người tại cùng cơ sở. Nếu nhiều ticket có cùng thời điểm và triệu chứng, cần kiểm tra khả năng đây là một sự cố chung trước khi xử lý từng ticket riêng lẻ.
 
-Giả định: LMS khóa sau 30 ngày không đăng nhập (quy định, không phải bug). Sửa rule cần Product/Dev.
+### TMS — Lỗi hệ thống
 
-Không gồm 5 phiếu **cấp / chuyển tài khoản** (cấp Ecount, cấp nhân sự, chuyển LMS/CRM cơ sở, chuyển CRM đổi cơ sở, hỗ trợ TK Denise) — người dùng chưa hoặc không phải đang kẹt mật khẩu.
+Có 6 ticket liên quan đến mất dữ liệu, không hiển thị thông tin hoặc không thao tác được.
 
-### 4.4. Lỗi chấm công / bảng công — 12 phiếu
+Nên thu thập thêm thông tin về thời điểm xảy ra lỗi, cơ sở/khu vực bị ảnh hưởng và phạm vi người dùng gặp lỗi. Các trường hợp có cùng triệu chứng có thể được gom vào một incident chính để theo dõi.
 
-TMS không hiển thị công, không xem bảng chấm công, không duyệt công trước hết tháng, lỗi bù công, phần mềm chấm công (đi đúng ca báo trễ), điểm danh giáo viên bị uncheck / không điểm danh được.
+### Không đăng nhập/tài khoản
 
-**Gốc (giả định):** đồng bộ công hoặc rule ca. Một user thì xử lý phiếu đó; nhiều user cùng lúc thì xem như sự cố bảng công.
+Có 12 ticket trên 7 hệ thống.
 
-### 4.5. Lỗi hệ thống TMS — 6 phiếu
+Đây là nhóm có quy trình kiểm tra tương đối lặp lại và phù hợp để tiếp tục đánh giá khả năng tự động hóa. Workflow hiện tại có thể xử lý các bước nằm trong phạm vi hệ thống mà tool có quyền kiểm tra; các trường hợp còn lại cần ghi nhận kết quả và chuyển support xử lý thủ công.
 
-Không hiện thông tin, mất dữ liệu, không thao tác trên hệ thống; 2 phiếu tỉnh Nam 2 cùng nội dung “lỗi TMS từ ngày 31”. Hai phiếu chỉ ghi “Lỗi TMS” / “check TMS”, không đủ chi tiết — vẫn xếp đây vì không nhắc công.
+Cần tiếp tục đo:
 
-**Gốc (giả định):** sự cố TMS hoặc mất đồng bộ. Khác quên mật khẩu (mục 4.3) và khác không thấy dòng công (mục 4.4).
+* Tỷ lệ ticket được workflow xử lý hoàn toàn.
+* Tỷ lệ ticket vẫn cần support can thiệp.
+* Thời gian xử lý trung bình trước và sau khi sử dụng workflow.
 
-### 4.6. CRM — 14 phiếu, ba việc
-
-* **Lead (7):** không đổi / chuyển trạng thái lead, import lead, kiểm tra lead học viên.
-* **Gọi / SMS (4):** không gửi tin, không bấm gọi, report thiếu dữ liệu cuộc gọi.
-* **Sửa dữ liệu (3):** xuất L6, không xóa mail Family, xóa order.
-
-Không gồm thanh toán và hợp đồng dù nhiều phiếu gắn tag CRM.
-
-**Gốc (giả định):** thao tác CRM phức tạp, phiếu thiếu field, hoặc chưa có (khách không mở) hướng dẫn từng việc.
-
-### 4.7. Hợp đồng — 7 phiếu
-
-Không tạo được HĐ, đã ký không ghi nhận, số tiền trên HĐ sai, gửi lại link e-contract, không xem / lấy file, duyệt tiền–hợp đồng pending. Đối tượng là e-contract, không phải payment trên lead.
-
-### 4.8. LMS và Denise
-
-LMS (11): Compass, giờ học, add GV, học phần, trạng thái học viên, chạy lại demo, **điểm danh lớp** (HTLO-XART-MDB01). Denise (5): điểm thưởng / đổi quà lệch Ecount.
-
-File **ít** tiêu đề “trang LMS chậm”. Tình huống tuần 4 (LMS chậm, nộp bài sập) dùng để xếp loại sự cố hệ thống, không phải nhóm đông trong export này.
+Chỉ nên kết luận mức tiết kiệm thời gian sau khi có đủ số liệu thực tế.
 
 ---
 
-## 5. Tác động
+## 6. Kết luận
 
-| Việc | Hậu quả với support | Hậu quả với user |
-| --- | --- | --- |
-| Enroll | Lặp thao tác tay | Học viên chưa vào lớp |
-| Thanh toán | Chờ kế toán; dễ giữ nhầm ở Technical Support | Lead / đóng tiền chậm |
-| Không đăng nhập | ~8 phút/phiếu nếu làm tay (ước lượng tuần 4) | Không vào LMS, CRM, TMS, Ecount, Denise |
-| Chấm công / bảng công | Nhiều phiếu đơn lẻ; nếu cùng ca lỗi thì nhân ticket | Không duyệt công, ảnh hưởng lương |
-| Lỗi hệ thống TMS | Cụm phiếu cùng sự cố nếu escalate chậm | Cả tỉnh / cơ sở không dùng TMS |
-| CRM lead / gọi | Sửa tay, hỏi thêm thông tin | Sale/BU kẹt lead hoặc không gọi được |
-| Hợp đồng | Phải chuyển e-contract | PH chưa ký hoặc HĐ sai số |
+Phân tích 131 ticket cho thấy phần lớn khối lượng hỗ trợ tập trung tại **CRM, LMS và TMS**, chiếm 63,4% tổng số ticket.
 
-12 phiếu không đăng nhập làm tay ≈ **1.5 giờ** trên bản export này. File không ghi phút thật.
+Các nhóm vấn đề nổi bật nhất là **CRM - thanh toán, LMS/CRM - enroll, TMS - chấm công và vấn đề đăng nhập/tài khoản**.
 
----
+Không phải nhóm có nhiều ticket nhất cũng là nhóm phù hợp nhất để tự động hóa. Các nghiệp vụ như thanh toán hoặc thay đổi dữ liệu CRM có mức độ ảnh hưởng cao và cần quyền xử lý rõ ràng. Ngược lại, nhóm đăng nhập có các bước kiểm tra lặp lại và điều kiện xử lý tương đối rõ, phù hợp hơn để tiếp tục thử nghiệm workflow tự động.
 
-## 6. Khuyến nghị
-
-### 6.1. Không đăng nhập — đang chạy
-
-Khi ticket sang **Đang xử lý**, workflow kiểm HR + LMS.
-
-* Đủ điều kiện: mở khóa hoặc reset mật khẩu, gửi mail, ghi chú, đánh dấu đã xử lý.
-* Không đủ (nghỉ việc, không thấy hồ sơ/tài khoản): chỉ ghi chú, support xem tay.
-* Không chạy lúc đang soạn. Không chạy lại phiếu đã xử lý. Server bật lại thì quét phiếu còn sót.
-* Không bắt phiếu cấp / chuyển tài khoản.
-
-Ước lượng khi đủ điều kiện: khoảng **1 phút/phiếu** (xem trên Odoo).
-
-Nếu sau này nhiều phiếu do rule 30 ngày: mail nhắc trước ngày khóa.
-
-Chi tiết luồng: repo `login-ticket-automation`.
-
-### 6.2. Hướng dẫn — hai giả định
-
-Chưa xác nhận Helpdesk/KB đã có bài hay chưa. Viết **từng việc**, không viết một bài “CRM” hay “TMS” chung.
-
-**Chưa có guide** → bài ngắn:
-
-* Quên mật khẩu / không đăng nhập (từng hệ thống)
-* Enroll: mã lớp, SĐT, tên
-* CRM: chuyển trạng thái lead; lỗi gọi/SMS
-* Thanh toán: hủy / confirm / gỡ payment — mã lead, số tiền, lý do
-* Hợp đồng: tạo / gửi lại link e-contract
-* Chấm công: không thấy công / cần duyệt trước hết tháng — khác bài “TMS sập”
-
-**Đã có guide mà vẫn còn ticket** → khách không tìm thấy bài, hoặc gửi phiếu cho nhanh. Hướng tiếp: **auto-reply + gắn tài liệu** khi tiêu đề khớp từ khóa (mật khẩu, enroll, QR, hợp đồng, chấm công). Support chỉ vào nếu khách vẫn kẹt. Login vẫn đi workflow HR/LMS, không thay bằng mỗi file hướng dẫn.
-
-### 6.3. Enroll
-
-Form bắt buộc mã lớp, SĐT, tên. Thiếu field thì chưa tạo ticket. Còn ticket sau khi có guide → auto-reply mục 6.2.
-
-### 6.4. Thanh toán
-
-Phiếu nhờ kế toán hủy confirm / gỡ payment / sửa giá → **kế toán**. Technical Support chỉ giữ nếu QR hoặc hệ thống thanh toán lỗi. Checklist: mã lead, số tiền, giao dịch trùng lần nào. Không gộp vào hàng CRM.
-
-### 6.5. Hợp đồng
-
-Chuyển e-contract. Không xử lý như payment trên lead.
-
-### 6.6. CRM (lead / gọi / dữ liệu)
-
-Form: mã lead, SĐT, việc cần làm. Guide riêng cho chuyển trạng thái và lỗi gọi/SMS. Không tự sửa dữ liệu CRM bằng script.
-
-### 6.7. Chấm công và lỗi hệ thống TMS — hai checklist
-
-**Chấm công / bảng công**
-
-1. Một giáo viên hay cả cơ sở?
-2. Không thấy dòng công, hay thấy nhưng sai (đi trễ, bị uncheck)?
-3. Đã hết hạn mật khẩu TMS chưa? (tránh nhầm mục 6.1)
-4. Nhiều người cùng triệu chứng → một ticket chính, cập nhật chung.
-
-**Lỗi hệ thống TMS** (không hiện / mất dữ liệu / không bấm được)
-
-1. Một người hay cả tỉnh (ví dụ Nam 2)?
-2. Một buổi hay nhiều ngày?
-3. Chỉ TMS hay kèm CRM/LMS?
-4. Có đợt cập nhật trong ngày?
-
-Nhiều người cùng lúc → điều tra rồi Dev Team. Một user → đăng xuất / trình duyệt khác, rồi mới escalate.
-
-**LMS chậm (tuần 4):** hỏi số người, cơ sở, khung giờ, đã thử mạng khác chưa. Không kết luận “do server” nếu chưa có dấu hiệu chung.
-
-### 6.8. Tính năng mới và việc có hạn chót
-
-Ghi nhận, không hứa ngày ra tính năng. Việc có giờ chết: chốt phạm vi, xin người có quyền. Không để máy tự duyệt.
-
----
-
-## 7. Việc cần đo tiếp
-
-* Số phiếu không đăng nhập / tuần; tỷ lệ workflow xử lý hết vs xem tay
-* Volume enroll, thanh toán, hợp đồng, CRM lead — **từng việc**, không đo chung “CRM”
-* Số phiếu chấm công trùng một ca lỗi, so với số phiếu TMS mất dữ liệu / không thao tác
-
----
-
-## 8. Tóm tắt
-
-| Phát hiện | Hướng xử lý |
-| --- | --- |
-| Enroll 15 (11%) | Form, guide, auto-reply |
-| Thanh toán 13 (10%) | Chuyển kế toán; checklist lead / số tiền |
-| Không đăng nhập 12 (9%) | Workflow HR + LMS (đã triển khai) |
-| Chấm công / bảng công 12 (9%) | Điều tra một user vs cả cơ sở; không gọi là “lỗi TMS” |
-| Lỗi hệ thống TMS 6 (5%) | Điều tra phạm vi, rồi Dev Team |
-| Hợp đồng 7 (5%) | Chuyển e-contract |
-| Guide chưa rõ có hay chưa | Chưa có → viết từng việc. Có rồi còn ticket → auto-reply + file |
-
-Đối chiếu từng dòng: `sample.xlsx` trong plan tuần 5. Mã ticket từng nhóm ở mục 9.
-
----
-
-## 9. Phụ lục — mã ticket từng nhóm
-
-| Việc | Mã |
-| --- | --- |
-| Enroll học viên vào lớp | 288, 286, 302, 224, 60, 274, 267, 210, 219, 54, 47, 246, 243, 221, 06 |
-| Thanh toán | 287, 278, 249, 305, 226, 225, 247, 186, 135, 125, 159, 155, 153 |
-| Không đăng nhập / khóa / quên mật khẩu | 241, 253, 143, 165, 162, 331, 220, 41, 172, 265, 255, 294 |
-| Lỗi chấm công / bảng công | 232, 228, 238, 218, 231, 215, 235, 124, 194, 152, 291, 211 |
-| Ticket test | 58, 310, 312, 309, 138, 137, 136, 57, 26, 25, 20, 19 |
-| LMS | 280, 176, 222, 201, 290, 269, 268, 207, 37, 39, 297 |
-| CRM — lead | 140, 187, 150, 46, 245, 75, 315 |
-| Hợp đồng | 157, 254, 173, 161, 145, 42, 63 |
-| Tiêu đề không đủ để xếp | 209, 189, 175, 61, 229, 101, 203 |
-| Lỗi hệ thống TMS | 239, 236, 234, 233, 227, 206 |
-| Cấp hoặc chuyển tài khoản | 308, 248, 276, 237, 141 |
-| Denise / điểm thưởng | 325, 296, 104, 295, 87 |
-| CRM — gọi / SMS | 275, 260, 318, 05 |
-| Cấp mail nội bộ | 129, 230, 174, 259 |
-| Phiếu dropout | 336, 335, 72, 62 |
-| Crystal / đặt phòng | 158, 99, 179, 156 |
-| CRM — sửa dữ liệu | 324, 284, 134 |
+Trong giai đoạn tiếp theo, cần tập trung đo hiệu quả thực tế của workflow login, chuẩn hóa dữ liệu đầu vào cho ticket enroll và thanh toán, đồng thời xác định các ticket TMS có cùng nguyên nhân để tránh xử lý lặp lại.

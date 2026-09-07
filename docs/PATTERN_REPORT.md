@@ -31,20 +31,20 @@ Ba hệ thống này chiếm **83/131 ticket, tương đương 63,4% tổng số
 Khi phân tích theo nội dung công việc, các nhóm xuất hiện nhiều nhất gồm:
 
 ```mermaid
-pie title Nhóm việc xuất hiện nhiều nhất
+pie title Nhóm việc xuất hiện nhiều nhất (không gắn hệ thống)
   "Enroll" : 15
-  "Thanh toán CRM" : 13
+  "Thanh toán" : 13
   "Không đăng nhập" : 12
-  "Chấm công TMS" : 12
+  "Chấm công" : 12
   "Test" : 12
-  "Lead CRM" : 7
-  "Lớp / GV LMS" : 7
+  "Lead / trạng thái" : 7
+  "Lớp / giáo viên / học phần" : 7
   "Hợp đồng" : 7
 ```
 
-Một vấn đề có thể xuất hiện trên nhiều hệ thống nhưng không nhất thiết có cùng cách xử lý. Vì vậy, báo cáo không gộp các ticket chỉ dựa trên tên vấn đề mà tiếp tục phân loại theo từng hệ thống.
+Chart trên chỉ theo **loại việc**. Cùng một loại việc có thể nằm trên nhiều hệ thống; phần đó tách ở mục 2 và mục 3.
 
-Ví dụ, enroll xuất hiện trên cả LMS và CRM nhưng thao tác xử lý nằm trên hai hệ thống khác nhau. Ngược lại, toàn bộ 13 ticket liên quan đến thanh toán trong tập dữ liệu này đều thuộc nhóm CRM.
+Trong tập dữ liệu này **không có ticket thanh toán trên LMS hoặc TMS**. Cả 13 phiếu thanh toán đều thao tác trên CRM (QR, payment trên lead, hóa đơn, mã giảm giá). Enroll thì khác: 9 phiếu LMS và 6 phiếu CRM.
 
 ---
 
@@ -160,7 +160,7 @@ Có thể giảm thời gian trao đổi bằng cách chuẩn hóa thông tin đ
 
 ### 3.3. Thanh toán — 13 ticket
 
-Trong tập dữ liệu hiện tại, **13 ticket được phân loại là vấn đề thanh toán đều nằm trên CRM**.
+Trong tập dữ liệu hiện tại **không có ticket thanh toán trên LMS hoặc TMS**. Cả **13 ticket thanh toán đều nằm trên CRM**.
 
 ```mermaid
 pie title Thanh toán theo hệ thống (13)

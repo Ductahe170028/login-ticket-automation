@@ -1,36 +1,48 @@
-# Phân tích ticket và hướng xử lý (Tuần 5)
+# Báo cáo phân tích ticket — Technical Support
 
-Nguồn số liệu: file export Helpdesk `sample.xlsx` (plan tuần 5).  
-Em đếm được **131 ticket** của team Technical Support. Một số dòng trong file là tiêu đề nhóm trạng thái, không tính là ticket.
+**Nguồn:** export Helpdesk `sample.xlsx` (plan tuần 5)  
+**Phạm vi:** 131 ticket Technical Support. File có 183 dòng; phần còn lại là tiêu đề nhóm trạng thái và hàng tag phụ, không tính là ticket.  
+**Cách gom nhóm:** theo tiêu đề + tag. 64/131 ticket không có tag nên không dựa mỗi cột Tags.
 
 ---
 
 ## 1. Kết luận
 
-Trong data thật, ticket **không dồn một loại**. Nhiều nhất là việc trên **CRM / thanh toán / hợp đồng**. Tiếp theo là **tài khoản / đăng nhập**, **enroll lớp**, **TMS / chấm công**.
+Ticket trong kỳ **không tập trung một loại**. Ba nhóm lớn nhất:
 
-Em làm tool cho **đăng nhập / cấp lại mật khẩu** vì bước xử lý giống nhau và máy kiểm tra được (HR + LMS). Nhưng chỉ một tool không đủ. Các hướng khác:
+| Thứ tự | Nhóm | Số ticket | Tỷ lệ |
+| --- | --- | ---: | ---: |
+| 1 | CRM / thanh toán / hợp đồng | 35 | 27% |
+| 2 | Tài khoản / đăng nhập | 18 | 14% |
+| 3 | Enroll / lớp học | 17 | 13% |
 
-* Ticket hỏi việc đã có (hoặc giả định sẽ có): bài hướng dẫn → viết guide, hoặc auto-reply + gắn tài liệu
-* CRM / enroll lặp → form / checklist / chuyển đúng team, không để support làm tay mãi
-* TMS / LMS lỗi hàng loạt → giả định điều tra trước, rồi mới chuyển Dev Team.
+Tiếp theo: TMS / chấm công (15), LMS / học tập (13).
 
+**Ưu tiên xử lý**
+
+1. **CRM và enroll** — volume cao, nhiều phiếu nhờ thao tác hộ (QR, lead, payment, add học viên). Phù hợp giảm bằng form đủ thông tin, bài hướng dẫn, hoặc auto-reply kèm tài liệu — không phù hợp tool tự sửa CRM.
+2. **Tài khoản / đăng nhập** — khoảng 10–14% (13 phiếu sát quên mật khẩu / không vào được / bị khóa). Quy trình lặp và kiểm tra được qua HR + LMS. Đã có workflow tự động khi ticket sang **Đang xử lý**.
+3. **TMS / LMS lỗi hàng loạt** — cần điều tra phạm vi (một user hay cả cơ sở) trước khi chuyển Dev Team.
+
+Một tool login **không giảm** nhóm CRM/enroll. Kế hoạch giảm ticket phải đi nhiều hướng, nêu ở mục 6.
 
 ---
 
-## 2. File data có gì
+## 2. Phạm vi dữ liệu
 
-Mỗi dòng là một phiếu Technical Support. Cột dùng được: tiêu đề (Subject), mã ticket, người gửi, tag, mức ưu tiên, trạng thái trên bảng.
+Cột dùng được: Subject, mã ticket, người gửi, Tags, Priority, trạng thái trên bảng.
 
-Nhiều cột khác (rating, SLA, icon) gần như trống. **64 / 131 ticket không có tag**, nên em gom nhóm theo **tiêu đề + tag**, không chỉ nhìn cột Tags.
+Cột rating, SLA, icon gần như trống. File không ghi khoảng thời gian export và không có số người bị ảnh hưởng từng phiếu. Có vài ticket test (`Tech test`, `TEST`) vẫn nằm trong 131.
+
+Sáu tình huống tuần 4 dùng để đối chiếu loại vấn đề (login, LMS chậm, sự cố lớn, tính năng, nhiều user, hạn chót). **Số liệu dưới đây lấy từ `sample.xlsx`, không lấy 6 phiếu luyện tập.**
 
 ---
 
-## 3. Số liệu support
+## 3. Tổng quan vận hành
 
-### 3.1. Ticket đang ở bước nào
+### 3.1. Trạng thái
 
-| Trạng thái trên file | Số ticket |
+| Trạng thái | Số ticket |
 | --- | ---: |
 | Resolved | 91 |
 | First Response Sent | 17 |
@@ -47,7 +59,7 @@ xychart-beta
     bar [91, 17, 12, 6, 5]
 ```
 
-Phần lớn đã đóng (Resolved). Vẫn còn New / First Response / In Progress — việc chưa xong vẫn vào hàng support.
+Tỷ lệ đã đóng: 91/131 (~70%). Còn 28 phiếu đang New / First Response / In Progress.
 
 ### 3.2. Mức ưu tiên
 
@@ -58,11 +70,11 @@ Phần lớn đã đóng (Resolved). Vẫn còn New / First Response / In Progre
 | Low | 40 |
 | Medium | 9 |
 
-Urgent + High = **82 / 131 (~63%)**. Nhiều phiếu được đánh khẩn. File không có cột “bao nhiêu người bị ảnh hưởng”, nên em không bịa số học viên.
+Urgent + High = **82/131 (~63%)**. File không có cột số user bị ảnh hưởng nên không quy ra Class of Service theo số người.
 
-### 3.3. Ticket thuộc hệ thống / việc gì
+### 3.3. Phân loại theo việc / hệ thống
 
-| Nhóm (gom từ tiêu đề + tag) | Số | Tỷ lệ |
+| Nhóm | Số | Tỷ lệ |
 | --- | ---: | ---: |
 | CRM / thanh toán / hợp đồng | 35 | 27% |
 | Khác / chưa gắn rõ | 21 | 16% |
@@ -85,141 +97,124 @@ pie title Nhom ticket trong sample.xlsx (131 ticket)
   "He thong khac" : 5
 ```
 
-Tag có sẵn trong file (chỉ khoảng nửa ticket): CRM 23, LMS 14, TMS 9, mail 4, Denise 3. Khớp hướng: CRM nhiều, rồi LMS/TMS.
-
-### 3.4. Ticket gần với tool login
-
-Lọc tiêu đề có chữ đăng nhập, mật khẩu, không vào được, tài khoản bị khóa, cấp lại tài khoản: **13 ticket** (~10%). Ví dụ:
-
-* Cấp lại mật khẩu LMS cho giáo viên
-* Không đăng nhập được CRM / TMS / hệ thống nội bộ
-* Tài khoản Ecount bị khóa / không vào được
-* Quên mật khẩu email TMS
-
-Không phải 13 ticket đều giống scenario tuần 4 (LMS giáo viên). Nhưng cùng kiểu: **hỏi tài khoản, support kiểm rồi mở / cấp lại**.
+Tag sẵn có (khoảng nửa phiếu): CRM 23, LMS 14, TMS 9, mail 4, Denise 3 — cùng chiều với bảng trên.
 
 ---
 
-## 4. Đọc số rồi làm gì
+## 4. Pattern lặp
 
-* **Nhiều nhất:** CRM (QR, lead, payment, hợp đồng). Support hay phải nhờ kế toán / tech sửa trên hệ thống. Khó một tool “tự sửa CRM”. Có thể giảm ticket bằng form đủ thông tin + bài hướng dẫn thao tác thường gặp.
-* **Làm tool được ngay:** tài khoản / đăng nhập (~14%, trong đó ~10% rất sát login/mật khẩu). Đã làm.
-* **Lặp rõ:** enroll vào lớp (17). Hay nhờ “add giúp học viên”. Checklist + quyền đúng người làm, hơn là support làm hộ từng phiếu.
-* **TMS / LMS lỗi hàng loạt** (không hiện công, không thao tác được): không phải quên mật khẩu. Cần giả định điều tra, xem có sự cố chung không.
+### 4.1. CRM / thanh toán — volume lớn nhất
 
-Tuần 4 em từng thấy “LMS chậm” ảnh hưởng nhiều người trong bài tập. **Trong sample.xlsx ít tiêu đề kiểu trang chậm.** Data thật nghiêng việc nội bộ / BU (CRM, enroll, TMS). Report này theo file data.
+Tiêu đề điển hình: không tạo QR, hủy/confirm payment trên lead, điểm thưởng, hợp đồng, SMS CRM. Phần lớn cần kế toán hoặc chỉnh trên hệ thống. Support Technical không tự đóng được bằng một script.
+
+**Gốc (giả định):** thao tác CRM phức tạp + phiếu thiếu thông tin + chưa có (hoặc khách không mở) hướng dẫn bước.
+
+### 4.2. Enroll lớp — cùng một việc, nhiều phiếu
+
+“Add học viên vào lớp”, “mở slot enroll”, “lỗi enroll”. Lặp, tốn thời gian, ít khi là bug lõi.
+
+**Gốc (giả định):** BU thiếu quyền hoặc thiếu mã lớp / SĐT / tên khi gửi phiếu.
+
+### 4.3. Tài khoản / đăng nhập — phù hợp tự động hóa
+
+13/131 (~10%) tiêu đề có đăng nhập, mật khẩu, không vào được, tài khoản khóa, cấp lại tài khoản. Ví dụ: cấp lại mật khẩu LMS, không vào CRM/TMS, Ecount bị khóa, quên mật khẩu mail TMS.
+
+Chuỗi xử lý giống nhau: còn làm việc không → có tài khoản không → mở khóa hoặc đặt mật khẩu → gửi thông tin. Dữ liệu lấy từ HR và LMS.
+
+Giả định thêm: LMS khóa sau 30 ngày không đăng nhập (quy định, không phải bug). Sửa rule cần Product/Dev. Support vẫn phải xử lý phiếu từng ngày.
+
+### 4.4. TMS / LMS — có dấu hiệu sự cố chung
+
+“TMS không hiện thông tin”, “không thao tác được từ ngày 31”, “không xem chấm công”, ticket tỉnh Nam 2 / nhiều BU. Khác quên mật khẩu.
+
+Trong `sample.xlsx` **ít** tiêu đề kiểu “trang LMS chậm”. Bài tuần 4 (LMS chậm, nộp bài sập, video lỗi) vẫn dùng để xếp loại sự cố hệ thống, nhưng **không phải nhóm đông nhất trong file này**.
 
 ---
 
-## 5. Sáu tình huống tuần 4 — chỉ để nhớ bài luyện
+## 5. Tác động
 
-Em vẫn để ngắn, vì tool bám scenario login tuần 4. Đây **không phải** bảng số liệu chính.
-
-| Tình huống | Nhóm | Ghi chú |
+| Nhóm | Tác động lên support | Tác động lên người dùng |
 | --- | --- | --- |
-| 01 Đăng nhập / quên mật khẩu | Tài khoản | Lặp bước, máy kiểm tra được. Đã làm tool. |
-| 02 LMS chậm | Hệ thống | Ảnh hưởng một lớp. Support không tự sửa LMS. |
-| 03 Không nộp bài / sập | Hệ thống | Nhiều người, chuyển Dev Team. |
-| 04 Xin tính năng | Product | Không tự làm, không hứa ngày ra feature. |
-| 05 Video lỗi nhiều người | Hệ thống | Gom ticket, xem lỗi chung hay từng máy. |
-| 06 Báo cáo có hạn chót | Nội bộ | Cần người có quyền, máy không tự duyệt. |
+| CRM / enroll | Nhiều phiếu, làm tay, hay chờ đội khác | BU/kế toán chậm xong việc |
+| Đăng nhập | ~8 phút/phiếu nếu làm tay (ước lượng lúc luyện tuần 4) | Giáo viên / nhân sự không vào được hệ thống |
+| TMS / LMS hàng loạt | Nhiều phiếu trùng một sự cố | Cả cơ sở không chấm công / không học |
+
+13 phiếu login làm tay ≈ **1.5–2 giờ** trong bản export này. File không ghi phút thật.
 
 ---
 
-## 6. Nhiều hướng, không chỉ một tool
+## 6. Khuyến nghị — giảm thời gian xử lý và giảm sinh ticket
 
-### Hướng A — Tài khoản / đăng nhập (đã làm)
+### 6.1. Tài khoản / đăng nhập — đang chạy
 
-Support chuyển ticket sang **Đang xử lý** → tool kiểm HR + LMS.
+Khi ticket sang **Đang xử lý**, workflow kiểm HR + LMS.
 
-* Còn làm việc + có tài khoản: mở khóa / đặt mật khẩu, gửi mail, ghi chú.
-* Nghỉ việc, không thấy hồ sơ, không thấy tài khoản: ghi chú, support xem tay.
-* Không chạy khi đang soạn ticket. Ticket máy đã làm thì không làm lại.
+* Đủ điều kiện: mở khóa hoặc reset mật khẩu, gửi mail, ghi chú, đánh dấu đã xử lý.
+* Không đủ (nghỉ việc, không thấy hồ sơ/tài khoản): chỉ ghi chú, support xem tay.
+* Không chạy lúc đang soạn. Không chạy lại phiếu đã xử lý. Server bật lại thì quét phiếu còn sót.
 
-Ước lượng từ lúc luyện tuần 4: làm tay khoảng **8 phút**, có tool còn khoảng **1 phút** nếu đủ điều kiện. Với ~13 ticket giống login trong file, nếu đều làm tay thì khoảng **1.5–2 giờ**. Đây là ước lượng, file không ghi phút thật.
+Ước lượng: đủ điều kiện thì còn khoảng **1 phút/phiếu** (xem kết quả trên Odoo).
 
-Về sau: nếu nhiều tài khoản khóa vì rule 30 ngày (giả định), đề xuất mail nhắc trước khi khóa.
+Nếu sau này nhiều phiếu do rule 30 ngày: mail nhắc trước ngày khóa.
 
-### Hướng B — Guide (giả định, hai nhánh)
+Chi tiết luồng: repo `login-ticket-automation`.
 
-Em **không biết** công ty đã có bài hướng dẫn trên Helpdesk / KB hay chưa. Nên tách giả định:
+### 6.2. Tài liệu hướng dẫn — hai giả định
 
-**Giả định 1 — chưa có guide**  
-Bổ sung bài ngắn cho việc hay gặp trong file:
+Chưa xác nhận Helpdesk/KB đã có bài hay chưa.
+
+**Chưa có guide** → bổ sung bài ngắn cho việc hay gặp:
 
 * Quên mật khẩu / không đăng nhập LMS, CRM, TMS
-* Enroll học viên cần gửi đủ mã lớp, SĐT, tên
-* BU nhờ hủy / confirm payment trên CRM
+* Enroll: đủ mã lớp, SĐT, tên
+* Hủy / confirm payment trên CRM
 
-**Giả định 2 — đã có guide**  
-Hỏi tiếp: **sao vẫn còn ticket?** Có thể khách không tìm thấy bài, hoặc vẫn thích gửi phiếu cho nhanh.
+**Đã có guide mà vẫn còn ticket** → khách không tìm thấy bài, hoặc gửi phiếu cho nhanh. Hướng tiếp: **auto-reply + gắn tài liệu** khi tiêu đề khớp từ khóa (mật khẩu, enroll, QR). Support chỉ vào nếu khách vẫn kẹt. Không thay workflow login (login vẫn phải kiểm HR/LMS).
 
-Hướng lúc đó: **tool auto-reply + gắn tài liệu**. Ticket khớp từ khóa (quên mật khẩu, enroll, QR…) thì gửi sẵn link/file hướng dẫn, rồi mới để support vào nếu khách vẫn kẹt. Không thay tool login (login vẫn phải kiểm HR/LMS). Cái này giảm ticket “hỏi lại bước đã viết sẵn”.
+### 6.3. CRM / enroll
 
-### Hướng C — CRM / enroll (nhiều nhất trong file)
+* Form: thiếu field thì chưa tạo ticket.
+* Phiếu “nhờ kế toán hủy confirm / sửa giá” chuyển đúng đội, không giữ lâu ở Technical Support nếu không phải lỗi hệ thống.
+* Đã có guide mà vẫn vào → cùng hướng auto-reply mục 6.2.
 
-Không viết tool tự sửa CRM.
+Không tự động sửa dữ liệu CRM.
 
-* Form: thiếu field nào thì chưa tạo ticket
-* Nếu giả định đã có guide mà vẫn vào → auto-reply như hướng B
-* Ticket “nhờ kế toán hủy confirm / sửa giá” → chuyển đúng đội, không nằm mãi ở Technical Support nếu không phải lỗi hệ thống
+### 6.4. TMS / LMS — điều tra trước khi escalate
 
-### Hướng D — TMS / LMS lỗi — giả định điều tra
+Checklist giả định (chưa có log trong file):
 
-Với ticket “TMS không hiện thông tin”, “không thao tác được từ ngày 31”, “không xem chấm công”:
-
-Em **không có log**. Giả định support kiểm trước khi chuyển Dev:
-
-1. Một người hay cả cơ sở / cả tỉnh? (file có ticket tỉnh Nam 2, nhiều BU)
-2. Cùng một buổi hay kéo dài nhiều ngày?
+1. Một người hay cả cơ sở / tỉnh?
+2. Một buổi hay nhiều ngày?
 3. Chỉ TMS hay kèm CRM/LMS?
-4. User vừa đổi máy / trình duyệt / hết hạn mật khẩu? (lẫn với hướng A)
-5. Có đợt cập nhật hệ thống hôm đó không?
+4. Vừa đổi máy, trình duyệt, hết hạn mật khẩu? (tránh nhầm với 6.1)
+5. Có đợt cập nhật hệ thống trong ngày?
 
-Nếu nhiều người cùng lúc → một ticket chính + cập nhật chung, không để 10 phiếu riêng.  
-Nếu chỉ một user → thử đăng xuất, trình duyệt khác, rồi mới escalate.
+Nhiều người cùng lúc → một ticket chính, cập nhật chung.  
+Một user → thử đăng xuất / trình duyệt khác, rồi mới chuyển Dev.
 
-**LMS chậm (bài tuần 4):** giả định thêm tải trang chậm do nhiều lớp vào cùng giờ, video nặng, mạng cơ sở, hoặc server. Support hỏi: bao nhiêu người, cơ sở nào, giờ nào, thử mạng khác chưa. Không tự kết luận “do server” nếu chưa có dấu hiệu chung.
+**LMS chậm (tuần 4):** hỏi số người, cơ sở, khung giờ, đã thử mạng khác chưa. Không kết luận “do server” nếu chưa có dấu hiệu chung (nhiều lớp cùng giờ, video nặng, mạng cơ sở, server).
 
-### Hướng E — Xin tính năng / việc có hạn chót (tuần 4)
+### 6.5. Tính năng mới và việc có hạn chót
 
-Vẫn: ghi nhận, không hứa ngày có tính năng. Việc có giờ chết thì hỏi rõ scope, xin người có quyền. Máy không tự duyệt.
-
----
-
-## 7. Tool login hoạt động thế nào
-
-**Tạo ticket → support kiểm → Đang xử lý → tool chạy.**
-
-Đủ điều kiện: kiểm trạng thái tài khoản → mở khóa hoặc reset mật khẩu → mail khách → ghi chú → đánh dấu đã xử lý.
-
-Không đủ: không đổi tài khoản, chỉ ghi chú.
-
-Chặn thêm: không chạy lúc soạn; không chạy lại ticket đã xử lý; bật lại server thì quét ticket còn sót.
+Ghi nhận, không hứa ngày ra tính năng. Việc có giờ chết: chốt phạm vi, xin người có quyền. Không để máy tự duyệt.
 
 ---
 
-## 8. Tool mang lại gì, và chưa mang lại gì
+## 7. Việc cần đo tiếp
 
-* Nhanh hơn với ticket đăng nhập đủ điều kiện.
-* Ít quên bước kiểm HR trước khi mở khóa.
-* **Không** làm giảm ticket CRM/enroll (nhóm lớn nhất trong file).
-* **Không** sửa LMS/TMS chậm hay sập.
-
-Muốn đo sau này (khi có thêm export):
-
-* Bao nhiêu ticket/tuần thuộc đăng nhập
-* Bao nhiêu cái tool xử lý hết, bao nhiêu phải xem tay
-* Ticket CRM/enroll còn bao nhiêu sau khi có guide hoặc auto-reply
+* Số ticket đăng nhập / tuần và tỷ lệ workflow xử lý hết vs xem tay
+* Volume CRM / enroll sau khi có form hoặc auto-reply
+* Số phiếu TMS trùng một sự cố (để biết escalate có kịp không)
 
 ---
 
-## 9. Tóm lại
+## 8. Tóm tắt
 
-* Số liệu support lấy từ **`sample.xlsx` (131 ticket)**, không lấy 6 ticket tuần 4.
-* Nhiều nhất: **CRM / thanh toán**. Tool login không giải quyết nhóm này.
-* Em làm tool **tài khoản / đăng nhập** vì lặp bước và có trong data (~10–14%).
-* Guide viết theo **giả định**: chưa có thì bổ sung; có rồi mà vẫn còn ticket thì xét auto-reply + gắn tài liệu.
-* TMS/LMS lỗi: **giả định điều tra** phạm vi (một người hay cả hệ thống), không chỉ viết “chuyển Dev”.
+| Phát hiện | Hướng xử lý |
+| --- | --- |
+| CRM + enroll chiếm ~40% | Form, guide, auto-reply, chuyển đúng team |
+| Đăng nhập / mật khẩu ~10–14% | Workflow HR + LMS (đã triển khai) |
+| TMS/LMS lỗi cụm | Điều tra phạm vi, rồi Dev Team |
+| Guide chưa rõ có hay chưa | Chưa có → viết. Có rồi còn ticket → auto-reply + file |
 
-Chart nằm trong report này. Đối chiếu từng dòng thì mở `sample.xlsx` ở plan tuần 5.
+Đối chiếu từng dòng: `sample.xlsx` trong plan tuần 5.

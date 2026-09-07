@@ -12,7 +12,7 @@
 Trong 131 ticket được ghi nhận, phần lớn vấn đề tập trung ở ba hệ thống chính: CRM, LMS và TMS.
 
 ```mermaid
-pie title Ticket theo he thong (131)
+pie title Ticket theo hệ thống (131)
   "CRM" : 37
   "LMS" : 26
   "TMS" : 20
@@ -20,10 +20,10 @@ pie title Ticket theo he thong (131)
   "Denise" : 8
   "E-contract" : 7
   "Mail" : 6
-  "Khac" : 6
+  "Khác" : 6
   "Crystal" : 4
   "Ecount" : 3
-  "Noi bo" : 2
+  "Nội bộ" : 2
 ```
 
 Ba hệ thống này chiếm **83/131 ticket, tương đương 63,4% tổng số ticket**. Ngoài ra có 12 ticket phục vụ mục đích test và các ticket liên quan đến Denise, E-contract, Mail, Crystal, Ecount và hệ thống nội bộ.
@@ -31,11 +31,15 @@ Ba hệ thống này chiếm **83/131 ticket, tương đương 63,4% tổng số
 Khi phân tích theo nội dung công việc, các nhóm xuất hiện nhiều nhất gồm:
 
 ```mermaid
-xychart-beta
-    title "Nhom viec xuat hien nhieu nhat"
-    x-axis [Enroll, "Thanh toan CRM", "Khong dang nhap", "Cham cong TMS", Test, "Lead CRM", "Lop / GV LMS", "Hop dong"]
-    y-axis "So ticket" 0 --> 20
-    bar [15, 13, 12, 12, 12, 7, 7, 7]
+pie title Nhóm việc xuất hiện nhiều nhất
+  "Enroll" : 15
+  "Thanh toán CRM" : 13
+  "Không đăng nhập" : 12
+  "Chấm công TMS" : 12
+  "Test" : 12
+  "Lead CRM" : 7
+  "Lớp / GV LMS" : 7
+  "Hợp đồng" : 7
 ```
 
 Một vấn đề có thể xuất hiện trên nhiều hệ thống nhưng không nhất thiết có cùng cách xử lý. Vì vậy, báo cáo không gộp các ticket chỉ dựa trên tên vấn đề mà tiếp tục phân loại theo từng hệ thống.
@@ -51,15 +55,15 @@ Ví dụ, enroll xuất hiện trên cả LMS và CRM nhưng thao tác xử lý 
 CRM là hệ thống có số lượng ticket lớn nhất, với **37/131 ticket (28,2%)**.
 
 ```mermaid
-pie title CRM theo nhom van de (37)
-  "Thanh toan" : 13
-  "Lead / trang thai" : 7
+pie title CRM theo nhóm vấn đề (37)
+  "Thanh toán" : 13
+  "Lead / trạng thái" : 7
   "Enroll" : 6
-  "Goi / SMS" : 4
-  "Sua / xuat du lieu" : 3
+  "Gọi / SMS" : 4
+  "Sửa / xuất dữ liệu" : 3
   "Dropout" : 2
-  "Cap / chuyen tai khoan" : 1
-  "Khong dang nhap" : 1
+  "Cấp / chuyển tài khoản" : 1
+  "Không đăng nhập" : 1
 ```
 
 Nhóm lớn nhất là **thanh toán với 13 ticket**, bao gồm các yêu cầu như tạo QR thanh toán, add/gỡ payment, hủy hoặc xác nhận giao dịch, cập nhật trạng thái đóng tiền, hóa đơn và mã giảm giá.
@@ -75,15 +79,15 @@ Với các nghiệp vụ có ảnh hưởng trực tiếp đến dữ liệu tha
 LMS có **26 ticket**, đứng thứ hai sau CRM.
 
 ```mermaid
-pie title LMS theo nhom van de (26)
+pie title LMS theo nhóm vấn đề (26)
   "Enroll" : 9
-  "Lop / giao vien / hoc phan" : 7
-  "Compass / hoc tap" : 3
-  "Cap / chuyen tai khoan" : 2
+  "Lớp / giáo viên / học phần" : 7
+  "Compass / học tập" : 3
+  "Cấp / chuyển tài khoản" : 2
   "Dropout" : 2
-  "Diem thuong" : 1
-  "Khong dang nhap" : 1
-  "Diem danh lop" : 1
+  "Điểm thưởng" : 1
+  "Không đăng nhập" : 1
+  "Điểm danh lớp" : 1
 ```
 
 Nhóm phổ biến nhất là **enroll với 9 ticket**. Nội dung chủ yếu liên quan đến thêm học viên vào lớp, không tìm thấy lớp hoặc slot enroll, enroll trùng và các lỗi trong quá trình enroll.
@@ -99,10 +103,10 @@ Nhóm **lớp/giáo viên/học phần** có 7 ticket, bao gồm các vấn đ�
 TMS có tổng cộng **20 ticket**, tập trung chủ yếu vào hai nhóm vấn đề:
 
 ```mermaid
-pie title TMS theo nhom van de (20)
-  "Cham cong / bang cong" : 12
-  "Loi he thong" : 6
-  "Khong dang nhap" : 2
+pie title TMS theo nhóm vấn đề (20)
+  "Chấm công / bảng công" : 12
+  "Lỗi hệ thống" : 6
+  "Không đăng nhập" : 2
 ```
 
 **Chấm công/bảng công** là nhóm lớn nhất với 12 ticket. Các trường hợp gồm không hiển thị công, không duyệt được công, lỗi bù công, đi đúng ca nhưng hệ thống báo trễ và các vấn đề liên quan đến điểm danh/chấm công giáo viên.
@@ -120,11 +124,14 @@ Ngoài ra có **6 ticket lỗi hệ thống**, với các biểu hiện như m�
 Có 12 ticket được phân vào nhóm không đăng nhập, khóa tài khoản hoặc quên mật khẩu, phân bố trên 7 hệ thống:
 
 ```mermaid
-xychart-beta
-    title "Khong dang nhap theo he thong (12 ticket)"
-    x-axis [Denise, TMS, Mail, Ecount, "Noi bo", LMS, CRM]
-    y-axis "So ticket" 0 --> 4
-    bar [2, 2, 2, 2, 2, 1, 1]
+pie title Không đăng nhập theo hệ thống (12 ticket)
+  "Denise" : 2
+  "TMS" : 2
+  "Mail" : 2
+  "Ecount" : 2
+  "Nội bộ" : 2
+  "LMS" : 1
+  "CRM" : 1
 ```
 
 Không có hệ thống nào chiếm phần lớn số ticket trong nhóm này. Điều này cho thấy vấn đề tài khoản xuất hiện rải rác trên nhiều hệ thống.
@@ -140,7 +147,7 @@ Workflow login đã xây dựng có thể hỗ trợ các bước kiểm tra n�
 Có tổng cộng 15 ticket liên quan đến enroll, tách theo hệ thống:
 
 ```mermaid
-pie title Enroll theo he thong (15)
+pie title Enroll theo hệ thống (15)
   "LMS" : 9
   "CRM" : 6
 ```
@@ -156,7 +163,7 @@ Có thể giảm thời gian trao đổi bằng cách chuẩn hóa thông tin đ
 Trong tập dữ liệu hiện tại, **13 ticket được phân loại là vấn đề thanh toán đều nằm trên CRM**.
 
 ```mermaid
-pie title Thanh toan theo he thong (13)
+pie title Thanh toán theo hệ thống (13)
   "CRM" : 13
 ```
 
@@ -171,11 +178,12 @@ Nội dung gồm tạo QR, add/gỡ payment, hủy hoặc xác nhận giao dịc
 Theo các nhóm trạng thái trong file export:
 
 ```mermaid
-xychart-beta
-    title "Trang thai ticket (131)"
-    x-axis [Resolved, "First Response", Cancelled, New, "In Progress"]
-    y-axis "So ticket" 0 --> 100
-    bar [91, 17, 12, 6, 5]
+pie title Trạng thái ticket (131)
+  "Resolved" : 91
+  "First Response Sent" : 17
+  "Cancelled" : 12
+  "New" : 6
+  "In Progress" : 5
 ```
 
 Có **91/131 ticket đã được Resolved**, tương đương khoảng **69,5%**.
@@ -183,7 +191,7 @@ Có **91/131 ticket đã được Resolved**, tương đương khoảng **69,5%*
 Về mức độ ưu tiên:
 
 ```mermaid
-pie title Muc uu tien (131)
+pie title Mức ưu tiên (131)
   "High" : 42
   "Urgent" : 40
   "Low" : 40

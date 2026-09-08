@@ -1,24 +1,27 @@
 # BÁO CÁO PHÂN TÍCH TICKET — TECHNICAL SUPPORT
 
-**Nguồn số liệu support:** export Helpdesk `sample.xlsx` (plan tuần 5). Bản làm việc: `sample-tickets.csv`.  
-**Phạm vi:** 131 ticket Technical Support có mã không trùng. File có 183 dòng; phần còn lại là hàng nhóm trạng thái và tag phụ, không tính là ticket.  
-Số liệu lấy từ export trên. Sáu tình huống tuần 4 không cộng vào 131; chúng dùng làm **khung loại tình huống**: login, hiệu năng, sự cố nhiều người, tính năng mới, hạn chót — để nhận các ticket cùng kiểu trong file, kể cả khi tiêu đề không trùng bài luyện.
+**Nguồn dữ liệu:** Helpdesk export `sample.xlsx` — Plan tuần 5  
+**Bản dữ liệu dùng để phân tích:** `sample-tickets.csv`  
+**Phạm vi:** 131 ticket Technical Support có mã không trùng lặp.
 
-**Cách phân loại:** Ticket được phân nhóm dựa trên hệ thống xảy ra vấn đề và nội dung yêu cầu trong Subject. Những ticket có cùng tên vấn đề nhưng xảy ra trên các hệ thống khác nhau không được mặc định là cùng một nguyên nhân hoặc cùng một cách xử lý.
+**Cách phân loại:** Ticket được phân nhóm theo hệ thống + nội dung yêu cầu trong Subject. Những ticket có cùng tên vấn đề nhưng nằm trên các hệ thống khác nhau không được mặc định là cùng nguyên nhân hoặc cùng cách xử lý.
 
-## 1. Mục tiêu phân tích
+## 1. Mục tiêu và cách đọc báo cáo
 
-Báo cáo này được thực hiện để trả lời ba câu hỏi:
+Báo cáo này không chỉ trả lời câu hỏi “có bao nhiêu ticket?”, mà đi theo chuỗi:
 
-- Ticket hiện tập trung nhiều nhất ở hệ thống và nhóm vấn đề nào?
-- Với từng nhóm ticket lớn, người dùng đang gặp những tình huống gì và support cần xử lý theo hướng nào?
-- Nhóm nào phù hợp để cải thiện quy trình hoặc tự động hóa, và nhóm nào cần điều tra thêm trước khi đưa ra giải pháp?
+Volume → Pattern → Giả thuyết nguyên nhân → Hướng xử lý → Dữ liệu cần đo thêm
 
-Mục tiêu của báo cáo không chỉ là đếm số lượng ticket, mà là xác định khu vực support đang phải xử lý lặp lại nhiều nhất, từ đó lựa chọn đúng vấn đề để cải thiện.
+Mục tiêu là trả lời bốn câu hỏi:
 
-## 2. Tổng quan 131 ticket
+- Ticket đang tập trung ở đâu?
+- Trong các khu vực đó, người dùng thực sự đang gặp loại vấn đề nào?
+- Support đang phải xử lý theo kiểu nào: hướng dẫn, xin quyền, điều tra lỗi, chuyển bộ phận hay thao tác lặp lại?
+- Với từng kiểu vấn đề, hướng cải thiện nào hợp lý và cần đo thêm gì trước khi kết luận?
 
-### 2.1. Ticket tập trung ở hệ thống nào?
+Volume dùng để xác định nơi cần nhìn vào trước. Giải pháp chỉ được đề xuất sau khi xem pattern và cách support thực sự xử lý.
+
+## 2. Bức tranh tổng thể: ticket đang tập trung ở đâu?
 
 ```mermaid
 pie title Ticket theo hệ thống — 131 ticket
@@ -35,15 +38,15 @@ pie title Ticket theo hệ thống — 131 ticket
   "Nội bộ" : 2
 ```
 
-CRM, LMS và TMS có tổng cộng 83/131 ticket, chiếm 63,4% tổng số ticket. Trong đó CRM có số lượng lớn nhất với 37 ticket, tiếp theo là LMS với 26 ticket và TMS với 20 ticket.
+CRM, LMS và TMS có tổng cộng 83/131 ticket, chiếm 63,4% toàn bộ dữ liệu. Trong đó CRM có 37 ticket, LMS 26 và TMS 20.
 
-Điều này cho thấy phần lớn khối lượng hỗ trợ trong tập dữ liệu hiện tại đang tập trung ở ba hệ thống trên. Vì vậy, nếu cần ưu tiên khu vực để phân tích sâu thì CRM, LMS và TMS là ba hệ thống cần được xem trước.
+Điều này cho thấy phần lớn workload support trong tập dữ liệu hiện tại đang nằm ở ba hệ thống trên. Vì vậy, nếu cần chọn nơi để phân tích sâu thì CRM, LMS và TMS là ba hệ thống cần xem trước.
 
-Tuy nhiên, số lượng ticket cao chưa đủ để kết luận một hệ thống đang có nhiều lỗi hơn hệ thống khác. Một hệ thống có nhiều ticket có thể do lượng người dùng lớn hơn, quy trình nghiệp vụ phức tạp hơn, người dùng chưa quen thao tác hoặc bản thân hệ thống có lỗi.
+Tuy nhiên, số lượng ticket cao không đồng nghĩa hệ thống đó có tỷ lệ lỗi cao. Dữ liệu hiện tại không có số người dùng của từng hệ thống, nên chưa thể tính số ticket trên mỗi người dùng. Một hệ thống có nhiều ticket có thể do lượng người dùng lớn, nghiệp vụ phức tạp, quyền hạn khó xử lý, người dùng chưa biết thao tác hoặc hệ thống thực sự lỗi.
 
-Dữ liệu hiện tại không có số lượng người sử dụng từng hệ thống nên báo cáo chỉ kết luận được ticket đang tập trung ở đâu, chưa thể tính tỷ lệ lỗi trên mỗi người dùng.
+Kết luận của bước này: khối lượng support tập trung ở CRM, LMS và TMS; cần đi sâu vào nội dung ticket của ba hệ thống để biết support đang mất công ở đâu.
 
-### 2.2. Các nhóm việc xuất hiện nhiều nhất
+## 3. Ticket đang tập trung vào loại công việc nào?
 
 ```mermaid
 pie title Các nhóm việc có số lượng ticket nổi bật
@@ -57,17 +60,20 @@ pie title Các nhóm việc có số lượng ticket nổi bật
   "Hợp đồng" : 7
 ```
 
-Enroll là nhóm có số lượng lớn nhất với 15 ticket. Tiếp theo là thanh toán với 13 ticket; không đăng nhập, chấm công và ticket test đều có 12 ticket.
+Các nhóm có số lượng nổi bật nhất là Enroll 15, Thanh toán 13, Không đăng nhập 12, Chấm công 12 và Test 12.
 
-Tuy nhiên, không nên lựa chọn giải pháp chỉ dựa vào tên nhóm. Ví dụ, 15 ticket enroll nằm trên hai hệ thống khác nhau: 9 ticket trên LMS và 6 ticket trên CRM. Hai hệ thống có màn hình, dữ liệu và cách xử lý khác nhau nên cần tiếp tục tách theo từng cặp hệ thống + vấn đề.
+Nhưng chưa thể chọn ngay “nhóm nhiều nhất để làm tool”. Ví dụ, 15 ticket enroll thực tế gồm 9 ticket trên LMS và 6 ticket trên CRM. Cùng là enroll nhưng thao tác, dữ liệu và quyền xử lý khác nhau.
 
-## 3. Phân tích ticket theo từng hệ thống
+Ngược lại, 13 ticket thanh toán đều nằm trên CRM, nên đây là một cụm nghiệp vụ rõ hơn.
 
-Phần này đi vào từng hệ thống có số ticket lớn nhất: CRM, LMS và TMS.
+Từ đây báo cáo tách thành hai góc nhìn:
 
-### 3.1. CRM — 37 ticket
+- Theo hệ thống: để xem từng hệ thống đang tạo ra loại ticket gì.
+- Theo pattern support: để xem loại quy trình nào đang lặp lại và có thể cải thiện.
 
-CRM có 37/131 ticket, chiếm 28,2% tổng số ticket, là hệ thống có khối lượng ticket lớn nhất.
+## 4. Phân tích ba hệ thống có nhiều ticket nhất
+
+### 4.1. CRM — 37 ticket
 
 ```mermaid
 pie title CRM — phân bố 37 ticket
@@ -81,74 +87,61 @@ pie title CRM — phân bố 37 ticket
   "Không đăng nhập" : 1
 ```
 
-Ba nhóm thanh toán, lead/trạng thái và enroll có tổng cộng 26/37 ticket CRM, tương đương 70,3% ticket CRM. Vì vậy, nếu cần cải thiện support trên CRM thì nên bắt đầu từ ba nhóm này thay vì xử lý dàn trải tất cả loại ticket.
+Ba nhóm lớn nhất trên CRM là Thanh toán 13, Lead/trạng thái 7 và Enroll 6. Tổng cộng ba nhóm này có 26/37 ticket, chiếm 70,3% ticket CRM.
 
-#### 3.1.1. Thanh toán — 13 ticket
+Điều này cho thấy ticket CRM không phân tán đều. Nếu muốn giảm workload support trên CRM thì ba nhóm trên là nơi cần điều tra trước.
 
-Thanh toán là nhóm lớn nhất trên CRM với 13/37 ticket, chiếm 35,1% ticket CRM.
+#### 4.1.1. Thanh toán — 13 ticket
 
-Các ticket trong nhóm này không phải cùng một lỗi duy nhất. Nội dung gồm nhiều tình huống khác nhau như:
+Thanh toán là nhóm lớn nhất của CRM, chiếm 35,1% ticket CRM.
 
-- tạo QR thanh toán;
-- add hoặc gỡ payment;
-- hủy hoặc xác nhận giao dịch;
-- cập nhật trạng thái đóng tiền;
-- hóa đơn;
-- mã giảm giá.
+Các ticket không phải cùng một lỗi mà gồm nhiều loại yêu cầu: tạo QR, add/gỡ payment, hủy hoặc confirm giao dịch, cập nhật trạng thái đóng tiền, hóa đơn và mã giảm giá.
 
-Điểm cần lưu ý là 13 ticket payment không có nghĩa CRM gặp cùng một lỗi payment 13 lần. Đây là một nhóm nghiệp vụ đang tạo ra nhiều yêu cầu hỗ trợ.
+Điểm quan trọng là:
 
-**Điều cần xác định thêm**
+13 ticket payment cho thấy đây là một nghiệp vụ tạo ra nhiều yêu cầu support, nhưng chưa chứng minh CRM có một lỗi payment lặp lại 13 lần.
 
-Trước khi chọn giải pháp, cần tách nguyên nhân ticket thành ít nhất ba hướng:
+Trước khi chọn giải pháp, cần tách nguyên nhân theo ít nhất bốn hướng:
 
-- Người dùng chưa biết hoặc thao tác chưa đúng.
-- Người dùng không có quyền thực hiện thao tác.
-- CRM hoặc dữ liệu thực sự xảy ra lỗi.
+**A. Người dùng chưa biết thao tác**  
+→ Có thể xử lý bằng hướng dẫn hoặc auto-reply nếu thao tác đơn giản và đã có tài liệu.
 
-Ba nguyên nhân này dẫn đến ba cách xử lý khác nhau.
+**B. Người dùng biết thao tác nhưng không có quyền**  
+→ Vấn đề nằm ở phân quyền hoặc routing; cần chuyển đúng người có quyền.
 
-Ba hướng xử lý tương ứng: hướng dẫn thao tác (mục 9), chuyển đúng người có quyền, hoặc điều tra lỗi hệ thống. Chưa có log hay ghi chú xử lý trong file nên **chưa chọn một hướng rồi đóng**.
+**C. Dữ liệu hoặc CRM thực sự lỗi**  
+→ Cần thu thập bằng chứng và chuyển người phụ trách CRM/Dev điều tra.
 
-**Hướng xử lý hiện tại**
+**D. Nghiệp vụ bắt buộc có người kiểm soát**  
+→ Không nên tự động thay đổi dữ liệu chỉ để giảm ticket.
 
-Chưa nên xây tool tự động sửa payment chỉ vì nhóm này có nhiều ticket. Đây là nghiệp vụ liên quan trực tiếp đến dữ liệu tài chính và có khả năng ảnh hưởng đến giao dịch thực tế.
+File hiện tại không có log xử lý hoặc root cause cuối cùng nên chưa biết tỷ trọng A/B/C/D.
 
-Bước phù hợp hơn là bổ sung dữ liệu cho từng ticket:
+Dữ liệu cần bổ sung cho 13 ticket payment:
 
-Nguyên nhân → người/bộ phận xử lý → thao tác đã thực hiện → thời gian xử lý → kết quả.
+Nguyên nhân cuối cùng → người/bộ phận xử lý → thao tác đã thực hiện → có phải hỏi thêm thông tin không → thời gian xử lý → kết quả.
 
-Sau khi có dữ liệu này mới có thể kết luận nên cải thiện bằng guide, form, routing hay automation.
+Sau khi có dữ liệu này mới quyết định được giải pháp chính là guide, form, routing hay automation.
 
-#### 3.1.2. Lead / trạng thái — 7 ticket
+#### 4.1.2. Lead / trạng thái — 7 ticket
 
-CRM có 7 ticket liên quan đến lead và trạng thái lead.
+Nhóm này chiếm gần 19% ticket CRM.
 
-Nhóm này có số lượng thấp hơn payment nhưng vẫn chiếm gần 19% ticket CRM. Cần tiếp tục xem các ticket này chủ yếu là:
+Cần tiếp tục tách xem ticket chủ yếu là yêu cầu đổi trạng thái, dữ liệu lead sai, không thao tác được, lỗi khi xử lý lead hay cần người có quyền cao hơn.
 
-- yêu cầu thay đổi trạng thái;
-- dữ liệu lead không đúng;
-- không thực hiện được thao tác;
-- lỗi khi gọi hoặc xử lý lead;
-- hay yêu cầu cần người có quyền cao hơn xử lý.
+Nếu support thường xuyên phải hỏi lại cùng các thông tin như mã lead, trạng thái hiện tại, trạng thái mong muốn, lý do thay đổi, có thể chuẩn hóa form đầu vào.
 
-Nếu support thường phải hỏi lại cùng một loại thông tin như mã lead, trạng thái hiện tại, trạng thái mong muốn hoặc lý do thay đổi thì có thể chuẩn hóa form đầu vào.
+Nếu nguyên nhân chủ yếu là thiếu quyền thì hướng phù hợp hơn là routing, không phải automation sửa dữ liệu.
 
-Nếu thao tác cần quyền đặc biệt, nên ưu tiên routing đúng người thay vì tự động sửa dữ liệu CRM.
+#### 4.1.3. Enroll trên CRM — 6 ticket
 
-#### 3.1.3. Enroll trên CRM — 6 ticket
+CRM có 6 ticket enroll. Các ticket này cần tách khỏi enroll trên LMS dù đều liên quan đến học viên/lớp, vì thao tác xử lý nằm trên hai hệ thống khác nhau.
 
-Có 6 ticket enroll xảy ra trên CRM.
+Với CRM, nội dung chủ yếu liên quan đến enrollment hoặc chỉnh sửa thông tin trên enrollment.
 
-Các trường hợp này cần được tách khỏi enroll trên LMS vì dù cùng liên quan đến học viên và lớp, thao tác xử lý nằm trên hai hệ thống khác nhau.
+Kết luận: có thể gom enroll để nhìn tổng volume, nhưng không được dùng một quy trình xử lý chung cho CRM và LMS.
 
-Với CRM, ticket enroll chủ yếu liên quan đến thao tác enrollment hoặc chỉnh sửa thông tin trên enrollment.
-
-Do đó, nếu sau này xây guide hoặc auto-reply thì phải xác định ticket đang phát sinh trên CRM hay LMS trước khi gửi hướng dẫn.
-
-### 3.2. LMS — 26 ticket
-
-LMS có 26 ticket, đứng thứ hai sau CRM.
+### 4.2. LMS — 26 ticket
 
 ```mermaid
 pie title LMS — phân bố 26 ticket
@@ -162,43 +155,46 @@ pie title LMS — phân bố 26 ticket
   "Điểm danh lớp" : 1
 ```
 
-Hai nhóm lớn nhất là Enroll (9) và Lớp/GV/học phần (7), tổng cộng 16/26 ticket, tương đương 61,5% ticket LMS.
+Hai nhóm lớn nhất là Enroll 9 và Lớp/GV/học phần 7, tổng cộng 16/26 ticket, chiếm 61,5% ticket LMS.
 
-Như vậy, phần lớn ticket LMS trong tập dữ liệu hiện tại liên quan đến việc đưa học viên vào lớp và quản lý lớp/học phần.
+Điều này cho thấy phần lớn ticket LMS trong tập dữ liệu hiện tại xoay quanh đưa học viên vào lớp và quản lý lớp/học phần.
 
-#### 3.2.1. Enroll trên LMS — 9 ticket
+#### 4.2.1. Enroll trên LMS — 9 ticket
 
-Các ticket gồm các trường hợp như:
+Các tình huống gồm thêm học viên, không tìm thấy lớp hoặc slot, enroll trùng và lỗi trong quá trình enroll.
 
-- thêm học viên vào lớp;
-- không tìm thấy lớp hoặc slot enroll;
-- enroll trùng lớp;
-- lỗi trong quá trình enroll.
+Chỉ dựa trên Subject chưa thể biết root cause. Có ít nhất bốn khả năng:
 
-Tuy nhiên, chỉ dựa trên Subject chưa thể kết luận 9 ticket này có cùng nguyên nhân.
+- Người dùng thao tác chưa đúng.
+- Dữ liệu học viên/lớp thiếu hoặc sai.
+- Tài khoản không đủ quyền.
+- LMS thực sự lỗi.
 
-Cần tiếp tục phân biệt:
+Bốn nguyên nhân này dẫn tới bốn hướng xử lý khác nhau:
 
-- người dùng thao tác chưa đúng;
-- thiếu hoặc sai dữ liệu học viên/lớp;
-- tài khoản không đủ quyền;
-- LMS thực sự xảy ra lỗi.
+- Guide / auto-reply nếu người dùng thiếu hướng dẫn.
+- Form nếu support thường phải hỏi lại mã lớp, học viên hoặc dữ liệu đầu vào.
+- Routing nếu cần người có quyền enroll.
+- Dev nếu nhiều ticket có cùng triệu chứng lỗi hệ thống.
 
-Hướng có thể đi song song: form bắt buộc mã lớp / SĐT / tên; tài liệu hoặc auto-reply (mục 9); chuyển người có quyền enroll; hoặc Dev nếu nhiều phiếu cùng một lỗi màn hình.
+Điểm cần tránh là kết luận ngay “9 ticket enroll → viết guide”.
 
-#### 3.2.2. Lớp / giáo viên / học phần — 7 ticket
+Nếu chưa có guide, viết guide là một hướng hợp lý. Nhưng nếu đã có guide mà ticket vẫn tiếp tục phát sinh thì phải kiểm tra tiếp: người dùng có biết tài liệu tồn tại không, tài liệu có dễ tìm không, còn đúng với giao diện hiện tại không, người dùng đọc rồi nhưng vẫn không thao tác được hay ticket thực chất là vấn đề quyền/lỗi hệ thống.
 
-Nhóm này gồm các vấn đề như không thêm được giáo viên, điều chỉnh lớp hoặc lỗi liên quan đến học phần.
+Vì vậy, guide chỉ là một trong các hướng xử lý, không phải kết luận cuối cùng từ số lượng ticket.
 
-Đây cũng là nhóm cần phân biệt giữa yêu cầu nghiệp vụ và lỗi hệ thống.
+#### 4.2.2. Lớp / giáo viên / học phần — 7 ticket
 
-Ví dụ, trường hợp người dùng cần người có quyền chỉnh lớp sẽ có hướng xử lý khác với trường hợp chức năng thêm giáo viên thực sự bị lỗi.
+Nhóm này gồm các yêu cầu như không thêm được giáo viên, điều chỉnh lớp hoặc lỗi liên quan đến học phần.
 
-Ở lần phân tích tiếp theo nên bổ sung nguyên nhân và thao tác support thực tế cho từng ticket để xác định nhóm nào có thể giải quyết bằng hướng dẫn, nhóm nào cần chuyển đúng người và nhóm nào cần Dev kiểm tra.
+Cần tách hai loại:
 
-### 3.3. TMS — 20 ticket
+- Yêu cầu nghiệp vụ: cần người có quyền chỉnh lớp/GV/học phần.
+- Lỗi hệ thống: chức năng đúng ra phải dùng được nhưng không hoạt động.
 
-TMS có 20 ticket và mức độ tập trung vấn đề rất rõ.
+Nếu là yêu cầu nghiệp vụ thì giải pháp là routing hoặc quy trình quyền. Nếu là lỗi hệ thống thì cần ghi nhận thao tác, dữ liệu đầu vào, ảnh lỗi và phạm vi ảnh hưởng để Dev kiểm tra.
+
+### 4.3. TMS — 20 ticket
 
 ```mermaid
 pie title TMS — phân bố 20 ticket
@@ -207,68 +203,54 @@ pie title TMS — phân bố 20 ticket
   "Không đăng nhập" : 2
 ```
 
-Có 18/20 ticket TMS, tương đương 90%, nằm trong hai nhóm chấm công hoặc lỗi hệ thống.
+Có 18/20 ticket TMS, tương đương 90%, nằm ở chấm công hoặc lỗi hệ thống. Đây là hệ thống có pattern tập trung rõ nhất trong ba hệ thống chính.
 
-Điều này cho thấy nếu muốn giảm khối lượng support trên TMS thì hai nhóm này cần được ưu tiên điều tra.
+#### 4.3.1. Chấm công / bảng công — 12 ticket
 
-#### 3.3.1. Chấm công / bảng công — 12 ticket
+Các triệu chứng gồm không hiển thị công, không duyệt được công, cần bù công, đi đúng ca nhưng hệ thống báo trễ và các vấn đề điểm danh/chấm công giáo viên.
 
-Các ticket trong nhóm này gồm nhiều triệu chứng khác nhau:
+Vì vậy, 12 ticket chấm công không phải 12 bản sao của cùng một lỗi.
 
-- không hiển thị công;
-- không duyệt được công;
-- cần bù công;
-- đi đúng ca nhưng hệ thống báo trễ;
-- vấn đề điểm danh hoặc chấm công giáo viên.
+Cần tách tiếp theo triệu chứng:
 
-Do đó, 12 ticket chấm công không nên được coi là một lỗi duy nhất.
+Không có dữ liệu → dữ liệu sai → không duyệt được → ghi nhận sai thời gian → vấn đề khác
 
-**Cần phân loại sâu hơn theo triệu chứng**
+Sau đó xác định phạm vi:
 
-Có thể tách tiếp thành:
+Một người → một ca → một cơ sở → nhiều cơ sở
 
-Không có dữ liệu → dữ liệu sai → không duyệt được → ghi nhận sai thời gian → vấn đề khác.
+Ví dụ, một người không thấy công có thể là dữ liệu cá nhân hoặc thao tác. Nhưng nếu nhiều người cùng cơ sở, cùng ca và cùng lỗi thì có thể là một incident. Nếu nhiều cơ sở cùng thời điểm thì mới tăng mạnh nghi ngờ lỗi hệ thống chung.
 
-Ngoài triệu chứng, cần xác định phạm vi ảnh hưởng.
+Ticket TMS nên có thêm các field:
 
-Ví dụ, một người không thấy công có thể là vấn đề cá nhân. Nhưng nếu nhiều giáo viên tại cùng cơ sở cùng không thấy dữ liệu trong cùng thời điểm thì cần nghĩ tới khả năng đây là một incident chung.
+Cơ sở → thời điểm → ca làm việc → người bị ảnh hưởng → số người cùng gặp → triệu chứng → ảnh lỗi
 
-**Thông tin nên bổ sung khi tạo ticket**
+Mục tiêu không chỉ là đủ thông tin để xử lý, mà còn giúp support nhận ra nhiều ticket có thể đang nói về cùng một sự cố.
 
-- cơ sở hoặc khu vực;
-- thời điểm xảy ra lỗi;
-- ca làm việc;
-- người bị ảnh hưởng;
-- một người hay nhiều người cùng gặp;
-- triệu chứng cụ thể;
-- ảnh chụp hoặc thông báo lỗi nếu có.
+#### 4.3.2. Lỗi hệ thống — 6 ticket
 
-Những thông tin này giúp support xác định nhanh hơn ticket cá nhân hay sự cố hệ thống.
+Có 6 ticket mô tả mất dữ liệu, không hiển thị thông tin hoặc không thao tác được.
 
-#### 3.3.2. Lỗi hệ thống — 6 ticket
+Đáng chú ý, ticket 233 và 234 cùng liên quan đến Tỉnh Nam 2, có triệu chứng tương tự và cùng nhắc đến lỗi từ ngày 31.
 
-Có 6 ticket mô tả tình trạng mất dữ liệu, không hiển thị thông tin hoặc không thao tác được trên TMS.
+Dữ liệu này chưa đủ để khẳng định cùng root cause, nhưng đủ để tạo giả thuyết rằng hai ticket có thể thuộc cùng một incident.
 
-Đáng chú ý, ticket 233 và 234 cùng phản ánh vấn đề tại cụm Tỉnh Nam 2, với triệu chứng tương tự và cùng liên quan đến lỗi từ ngày 31.
+Hướng xử lý phù hợp là so sánh:
 
-Điều này chưa đủ để khẳng định hai ticket có cùng root cause, nhưng là dấu hiệu nên điều tra theo hướng incident chung.
+Hệ thống + khu vực + thời gian + triệu chứng
 
-**Hướng cải thiện**
+Nếu trùng nhiều yếu tố, support liên kết chúng để cùng điều tra. Việc xác nhận cùng root cause vẫn phải dựa trên điều tra thực tế.
 
-Khi nhận nhiều ticket TMS, có thể so sánh:
+## 5. Pattern support xuất hiện trên nhiều hệ thống
 
-hệ thống + khu vực/cơ sở + thời gian + triệu chứng.
+Sau khi xem riêng CRM, LMS và TMS, bước tiếp theo là tìm quy trình support lặp lại xuyên hệ thống.
 
-Nếu nhiều ticket trùng các yếu tố trên, support có thể liên kết chúng vào một incident chính để theo dõi thay vì điều tra từng ticket độc lập.
+Đây là phần quan trọng vì automation không nhất thiết phải chọn nhóm có volume lớn nhất. Một nhóm nhỏ hơn nhưng quy trình rõ, lặp lại và ít rủi ro có thể phù hợp hơn.
 
-Quyết định gom ticket vẫn nên do support xác nhận, không nên để hệ thống tự động kết luận hai ticket chắc chắn có cùng nguyên nhân.
-
-## 4. Không đăng nhập / tài khoản — 12 ticket
-
-Nhóm không đăng nhập, khóa tài khoản hoặc quên mật khẩu có 12 ticket, phân bố trên 7 hệ thống.
+### 5.1. Không đăng nhập / tài khoản — 12 ticket trên 7 hệ thống
 
 ```mermaid
-pie title Không đăng nhập — phân bố trên 7 hệ thống
+pie title Không đăng nhập — 12 ticket trên 7 hệ thống
   "Denise" : 2
   "TMS" : 2
   "Mail" : 2
@@ -278,36 +260,28 @@ pie title Không đăng nhập — phân bố trên 7 hệ thống
   "CRM" : 1
 ```
 
-Không có hệ thống nào chiếm phần lớn nhóm login. Điều đáng chú ý ở nhóm này không phải số lượng ticket trên từng hệ thống mà là quy trình support có tính lặp lại.
+Không có hệ thống nào chiếm phần lớn nhóm login. Điểm đáng chú ý không nằm ở volume từng hệ thống mà ở cấu trúc xử lý lặp lại.
 
-Một ticket login thường có thể cần các bước:
+Một ticket login thường có thể đi qua chuỗi:
 
-1. Xác định người dùng.
-2. Kiểm tra người dùng còn hoạt động hay không.
-3. Kiểm tra trạng thái tài khoản.
-4. Xác định tài khoản bị khóa, sai thông tin hay cần reset.
-5. Thực hiện thao tác nếu đủ điều kiện.
-6. Phản hồi lại người dùng.
+Xác định user → kiểm tra trạng thái nhân sự → kiểm tra trạng thái tài khoản → xác định nguyên nhân → reset/mở khóa nếu đủ điều kiện → phản hồi
 
-Đây là lý do login phù hợp để tiếp tục thử automation hơn các nghiệp vụ như payment: quy trình kiểm tra có điều kiện tương đối rõ và có khả năng để máy thực hiện một phần.
+Đây là dạng quy trình phù hợp để automation hỗ trợ vì đầu vào có thể chuẩn hóa, có điều kiện kiểm tra rõ và nhiều bước là truy vấn trạng thái.
 
-Tuy nhiên, 12 ticket login không đồng nghĩa workflow hiện tại xử lý được toàn bộ 12 ticket. Các hệ thống khác nhau có thể có cơ chế tài khoản khác nhau. Nếu nguyên nhân phổ biến là rule khóa sau thời gian không dùng, đó cũng là trường hợp “đã có quy định mà ticket vẫn vào” — cần nhắc user trước ngày khóa, không chỉ reset từng phiếu.
+Tuy nhiên, 12 ticket login không đồng nghĩa workflow hiện tại xử lý được cả 12. Các hệ thống có cơ chế tài khoản khác nhau và workflow hiện tại chỉ xử lý được phần nằm trong phạm vi hệ thống mà tool truy cập.
 
-**Chỉ số cần đo với workflow login**
+Vì vậy, mục tiêu tiếp theo là đo:
 
-Cần ghi nhận ít nhất:
+- tổng ticket đưa vào workflow;
+- số ticket xử lý hoàn toàn;
+- số ticket chỉ hỗ trợ kiểm tra;
+- số ticket không xử lý được;
+- lý do không xử lý được;
+- thời gian trước và sau workflow.
 
-- tổng số ticket đưa vào workflow;
-- số ticket xử lý hoàn toàn tự động;
-- số ticket workflow chỉ hỗ trợ kiểm tra nhưng vẫn cần support can thiệp;
-- số ticket workflow không xử lý được;
-- thời gian xử lý trung bình trước và sau khi dùng workflow.
+Khi có số liệu này mới đánh giá được automation coverage và hiệu quả thực tế.
 
-Ví dụ, nếu thử trên 20 ticket và tool tự xử lý hoàn toàn được 15 ticket thì khi đó mới có thể kết luận automation coverage đạt 75%.
-
-Hiện tại chưa nên khẳng định mức tiết kiệm thời gian nếu chưa có số liệu đo thực tế.
-
-## 5. Enroll — 15 ticket trên hai hệ thống
+### 5.2. Enroll — 15 ticket trên hai hệ thống
 
 ```mermaid
 pie title Enroll theo hệ thống — 15 ticket
@@ -315,54 +289,66 @@ pie title Enroll theo hệ thống — 15 ticket
   "CRM" : 6
 ```
 
-Enroll là nhóm có số lượng lớn nhất khi nhìn theo loại việc, nhưng 15 ticket này nằm trên hai hệ thống khác nhau.
+Enroll là nhóm lớn nhất nếu chỉ nhìn theo tên công việc, nhưng pattern ở đây khác login.
 
-LMS: chủ yếu liên quan đến thêm học viên, lớp, slot và enroll trùng.
+Login có thể có một chuỗi kiểm tra tương đối giống nhau.
 
-CRM: chủ yếu liên quan đến thao tác enrollment hoặc thông tin trên enrollment.
+Enroll phụ thuộc mạnh vào hệ thống.
 
-Vì vậy, việc gộp thành “15 ticket enroll” chỉ hữu ích để nhìn tổng volume. Khi tìm giải pháp phải tách LMS và CRM.
+Vì vậy, với enroll, hướng hợp lý trước mắt là chuẩn hóa đầu vào và tách quy trình LMS/CRM, chưa phải xây một workflow chung.
 
-Nếu xây guide, form hoặc auto-reply thì hệ thống cần xác định trước ticket đang xảy ra trên LMS hay CRM để đưa đúng hướng dẫn.
+Thông tin đầu vào có thể gồm:
 
-## 6. Tình huống cần điều tra trước khi chốt nguyên nhân
+Hệ thống → mã lớp → thông tin học viên → thao tác đã thử → lỗi nhìn thấy
 
-Một số ticket trông giống “lỗi hệ thống” nhưng chưa đủ để kết luận do server, do mạng, do một user hay do cả cơ sở. File không có số người bị ảnh hưởng và không có log. Các hướng dưới đây là **giả định điều tra**, dùng chung cho mọi hệ thống — không chỉ LMS.
+Sau đó mới đánh giá từng hệ thống có bước nào lặp lại đủ rõ để tiếp tục tự động hóa.
 
-### 6.1. Hiệu năng (chậm, timeout, tải mãi)
+## 6. Những tình huống không nên vội chốt nguyên nhân
 
-Trong `sample.xlsx` ít tiêu đề kiểu “LMS chậm” hay “nộp bài sập”. Vẫn cần sẵn cách hỏi khi phiếu loại này xuất hiện (LMS, CRM, TMS, Denise, Crystal đều có thể chậm).
+### 6.1. Hệ thống chậm / timeout / tải lâu
 
-Chưa kết luận do server. Ghi nhận:
+File hiện tại không có nhiều ticket loại “LMS chậm”, nên chưa thể thống kê thành một nhóm lớn. Tuy nhiên, khi gặp loại ticket này, không nên kết luận ngay “server chậm”.
 
-1. Một máy hay cả cơ sở / nhiều cơ sở?
-2. Khung giờ nào? Có trùng giờ cao điểm không?
-3. Đã thử mạng khác, máy khác, trình duyệt khác chưa?
-4. Chậm lúc vào trang, lúc tải file/video, hay lúc lưu/nộp?
-5. Cơ sở vừa đổi mạng, firewall, hay hệ thống vừa cập nhật?
+Cần hỏi theo thứ tự:
 
-Một user → thử môi trường khác rồi mới chuyển Dev.  
-Nhiều người cùng giờ, nội dung nặng → nghi tải phía client hoặc băng thông cơ sở.  
-Nhiều cơ sở cùng lúc → mới nghi server / CDN; một ticket chính, cập nhật chung.
+- Một người hay nhiều người cùng gặp?
+- Một cơ sở hay nhiều cơ sở?
+- Xảy ra trong khung giờ nào?
+- Đã thử máy khác, mạng khác, trình duyệt khác chưa?
+- Chậm ở bước nào: mở trang, tải file/video, lưu hay submit?
+- Có thay đổi mạng, firewall hoặc release hệ thống gần thời điểm đó không?
 
-Không dùng workflow login để xử lý phiếu chậm.
+Cách suy luận:
+
+- Một user → kiểm tra môi trường người dùng trước.
+- Nhiều user cùng cơ sở → kiểm tra mạng/cơ sở và dữ liệu chung.
+- Nhiều cơ sở cùng thời điểm → tăng khả năng sự cố phía hệ thống/server/CDN.
+
+“Chậm” là triệu chứng, không phải root cause.
 
 ### 6.2. Nhiều người cùng triệu chứng
 
-Cùng logic với “một user hay nhiều user”. Trong file, dấu hiệu rõ nhất là TMS: ticket 233 và 234 (Tỉnh Nam 2, không hiện thông tin / không thao tác từ ngày 31). Cùng kiểu đó có thể gặp ở CRM không gọi được, Crystal không book phòng, Denise lệch điểm thưởng — nếu nhiều BU cùng lúc.
+Khi nhiều ticket giống nhau, support cần kiểm tra xem đây là nhiều lỗi độc lập hay một incident.
 
-So sánh: hệ thống + khu vực + thời điểm + triệu chứng. Trùng thì gom một incident, không để nhiều support điều tra song song. Support xác nhận trước khi kết luận cùng root cause.
+Thông tin tối thiểu để so sánh:
 
-### 6.3. Yêu cầu tính năng và việc có hạn chót
+Hệ thống + khu vực + thời gian + triệu chứng + số người bị ảnh hưởng
 
-Hai loại này ít khi hiện thành nhóm volume lớn, nhưng cách xử lý khác hẳn bug.
+Nếu trùng các yếu tố trên, tạo một incident chính và liên kết các ticket liên quan có thể giúp tránh nhiều support cùng điều tra một nguyên nhân.
 
-- Tính năng mới / upsale / đổi chương trình: ghi nhận, không hứa ngày ra tính năng, chuyển Product hoặc người có quyền.
-- Việc có giờ chết (duyệt công trước hết tháng, PH cần ký HĐ trong ngày): chốt phạm vi, xin người có quyền; không để máy tự duyệt.
+### 6.3. Tính năng mới và yêu cầu có hạn chót
 
-File có tín hiệu kiểu này (ví dụ duyệt công sát cuối tháng, yêu cầu upsale) nhưng không đủ để thống kê riêng.
+Hai loại này không nên xử lý giống bug.
 
-## 7. Trạng thái ticket
+Tính năng mới: ghi nhận nhu cầu, xác định người quyết định, không tự hứa thời gian release.
+
+Yêu cầu có deadline: xác định thời hạn thực tế, phạm vi ảnh hưởng và người có quyền xử lý.
+
+Những việc cần quyền phê duyệt không nên đưa vào automation chỉ vì có deadline.
+
+## 7. Trạng thái và priority nói được gì — và chưa nói được gì?
+
+### 7.1. Trạng thái
 
 ```mermaid
 pie title Trạng thái 131 ticket
@@ -373,22 +359,15 @@ pie title Trạng thái 131 ticket
   "In Progress" : 5
 ```
 
-Có 91/131 ticket ở trạng thái Resolved, tương đương 69,5%.
+Có 91/131 ticket Resolved, tương đương 69,5%.
 
-Con số này cho biết phần lớn ticket trong file đã được đóng, nhưng chưa đủ để đánh giá hiệu quả của đội support.
+Con số này cho biết phần lớn ticket trong export đã được đóng, nhưng không đủ để đánh giá support đang làm nhanh hay chậm.
 
-Để đánh giá chất lượng xử lý cần thêm các chỉ số như:
+Để đánh giá hiệu quả xử lý cần thêm thời gian từ Created đến First Response, thời gian đến Resolved, SLA, reopen, assignee và số người/cơ sở bị ảnh hưởng.
 
-- thời gian từ lúc tạo ticket đến first response;
-- thời gian từ lúc tạo ticket đến resolved;
-- số lần ticket bị reopen;
-- SLA;
-- người hoặc nhóm xử lý;
-- số người dùng bị ảnh hưởng.
+Ví dụ, 69,5% resolved có thể tốt nếu ticket được xử lý trong thời gian ngắn, nhưng cũng có thể chưa tốt nếu phần lớn ticket mất nhiều ngày mới đóng.
 
-Ví dụ, 69,5% ticket resolved có thể là kết quả tốt nếu thời gian xử lý ngắn, nhưng cũng có thể chưa tốt nếu ticket tồn tại quá lâu trước khi được đóng.
-
-## 8. Mức độ ưu tiên
+### 7.2. Priority
 
 ```mermaid
 pie title Mức độ ưu tiên — 131 ticket
@@ -398,132 +377,135 @@ pie title Mức độ ưu tiên — 131 ticket
   "Medium" : 9
 ```
 
-High và Urgent có tổng cộng 82/131 ticket, chiếm 62,6%.
+High + Urgent có 82/131 ticket, chiếm 62,6%.
 
-Tỷ lệ này khá cao, nhưng chưa nên kết luận rằng 62,6% ticket là sự cố nghiêm trọng.
+Đây là tỷ lệ đáng chú ý, nhưng chưa thể kết luận 62,6% ticket là sự cố nghiêm trọng. Cần biết priority được gán theo tiêu chí nào: số người bị ảnh hưởng, nghiệp vụ, deadline hay do người tạo ticket tự chọn.
 
-Có thể xảy ra các trường hợp:
+Nếu không có quy tắc gán priority rõ ràng, tỷ lệ High/Urgent cao có thể làm giảm ý nghĩa của chính trường priority.
 
-- priority phản ánh đúng mức độ ảnh hưởng;
-- người tạo ticket có xu hướng chọn High/Urgent để được xử lý nhanh;
-- từng loại nghiệp vụ có quy tắc priority khác nhau.
+## 8. Từ phân tích đến quyết định cải thiện
 
-Do file hiện tại không có số người dùng bị ảnh hưởng hoặc tiêu chí gán priority, báo cáo chưa thể kiểm chứng nguyên nhân.
+Sau khi đi qua dữ liệu, có thể thấy không có một giải pháp chung cho mọi ticket.
 
-Đây là một điểm nên tiếp tục điều tra nếu muốn đánh giá chất lượng phân loại ticket.
+| Nhóm | Điều đã biết | Điều chưa biết | Hướng hợp lý hiện tại |
+| --- | --- | --- | --- |
+| CRM — Payment | 13 ticket, nhiều dạng nghiệp vụ | Root cause và thao tác support thực tế | Phân loại nguyên nhân trước; ưu tiên form/routing, không tự sửa payment |
+| CRM — Lead | 7 ticket | Chủ yếu thiếu thông tin, thiếu quyền hay lỗi hệ thống | Chuẩn hóa field và routing nếu xác nhận support phải hỏi lại |
+| LMS — Enroll | 9 ticket | Root cause từng ticket | Tách guide/form/quyền/lỗi; không mặc định chỉ cần guide |
+| CRM — Enroll | 6 ticket | Bước lặp lại thực tế | Quy trình riêng CRM |
+| TMS — Chấm công | 12 ticket, nhiều triệu chứng | Phạm vi ảnh hưởng và root cause | Bổ sung field, phát hiện incident |
+| TMS — Lỗi hệ thống | 6 ticket, có cụm Nam 2 | Có thực sự cùng root cause không | Điều tra incident chung |
+| Login | 12 ticket, 7 hệ thống, quy trình kiểm tra lặp lại | Workflow xử lý được bao nhiêu | Tiếp tục workflow và đo coverage |
+| Guide / tài liệu | Có khả năng hỗ trợ nhiều nhóm | Chưa biết KB hiện có gì và user có đọc không | Kiểm tra trước khi viết mới; đo hiệu quả auto-reply |
 
-## 9. Đánh giá hướng cải thiện theo từng nhóm
+Điểm rút ra:
 
-Dựa trên dữ liệu hiện tại, không nên áp dụng cùng một giải pháp cho tất cả nhóm ticket.
+Volume trả lời “nên nhìn vào đâu”.  
+Pattern trả lời “support đang lặp lại việc gì”.  
+Root cause trả lời “vì sao ticket phát sinh”.  
+Chỉ sau ba bước đó mới chọn được giải pháp.
 
-| Nhóm | Số ticket | Điều dữ liệu đang cho thấy | Các hướng có thể làm |
-| --- | ---: | --- | --- |
-| CRM — Thanh toán | 13 | Nhiều yêu cầu nghiệp vụ, chưa rõ root cause | Form đủ field; chuyển kế toán; guide hoặc auto-reply. Không script sửa payment. |
-| LMS — Enroll | 9 | Nhiều dạng tình huống trên LMS | Form mã lớp / SĐT / tên; guide LMS; auto-reply nếu đã có tài liệu. |
-| CRM — Enroll | 6 | Cùng tên với LMS, khác hệ thống | Quy trình và guide riêng cho CRM. |
-| TMS — Chấm công | 12 | Nhiều triệu chứng khác nhau | Tách triệu chứng; xác định một user hay cả cơ sở. |
-| TMS — Lỗi hệ thống | 6 | Có ticket tương tự (Nam 2) | Điều tra incident chung, rồi Dev. |
-| Login | 12 | Bước kiểm tra lặp lại | Workflow HR + LMS (đã triển khai). Nếu nhiều phiếu do rule khóa tài khoản: mail nhắc, không chỉ reset. |
-| CRM — Lead / trạng thái | 7 | Volume đáng kể | Form; routing đúng người. |
-| Hiệu năng / hàng loạt | TMS có cụm; LMS chậm ít trong file | Chưa có số người bị ảnh hưởng | Điều tra phạm vi trước (mục 6). Không kết luận server ngay. |
-| Tính năng / hạn chót | Lẻ trong file | Không phải bug lặp | Ghi nhận hoặc xin người có quyền. Không automate. |
+## 9. Hướng xử lý và ưu tiên
 
-Một hướng (workflow login, hoặc chỉ viết guide) **không giảm** hết thanh toán, enroll, chấm công và sự cố hàng loạt. Từng nhóm chọn hướng phù hợp, có thể đi song song.
+Từ các nhóm đã phân tích, không nên chọn giải pháp chỉ dựa trên số lượng ticket. Hướng xử lý cần dựa vào nguyên nhân, mức độ lặp lại của quy trình support và rủi ro của thao tác.
 
-Volume giúp xác định nên nhìn vào đâu. Root cause và quy trình xử lý thực tế mới quyết định nên làm gì.
+### 9.1. Login — tiếp tục sử dụng workflow và đo hiệu quả thực tế
 
-## 10. Khi chưa rõ đã có tài liệu hay chưa
+Login có 12 ticket trên 7 hệ thống. Điểm đáng chú ý không phải là số ticket trên từng hệ thống, mà là chuỗi kiểm tra support có tính lặp lại:
 
-File export không ghi Helpdesk/KB đã có bài hay chưa, người dùng đã mở bài hay chưa. Mọi kết luận “cần viết guide” dưới đây là giả định — áp dụng cho **mọi nhóm hướng dẫn thao tác**, không chỉ enroll.
+Xác định user → kiểm tra trạng thái nhân sự → kiểm tra tài khoản → xác định nguyên nhân → xử lý nếu đủ điều kiện → phản hồi.
 
-**Chưa có bài** → viết ngắn theo từng việc (đăng nhập từng hệ thống, enroll LMS, enroll CRM, payment, chấm công, gọi/SMS). Không gộp một bài cho cả hệ thống.
+Đây là nhóm phù hợp để automation hỗ trợ vì nhiều bước là kiểm tra trạng thái và có thể đặt điều kiện rõ ràng.
 
-**Đã có bài mà ticket vẫn vào** → chưa chắc bài vô ích. Có thể người dùng không tìm thấy, bài khó hiểu, bài cũ so với hệ thống, hoặc gửi ticket cho nhanh.
+Workflow login hiện đã được triển khai. Tuy nhiên, chưa nên kết luận tool giúp giảm bao nhiêu thời gian chỉ dựa trên việc workflow chạy được. Cần ghi nhận ngay trong quá trình sử dụng:
 
-Hướng tiếp, cùng lúc với viết/sửa bài:
+- tổng số ticket được đưa vào workflow;
+- số ticket workflow xử lý hoàn toàn;
+- số ticket workflow hỗ trợ một phần nhưng vẫn cần support;
+- số ticket không xử lý được và lý do;
+- thời gian xử lý thực tế.
 
-- auto-reply + gắn đúng file khi tiêu đề khớp;
-- form bắt buộc field để bớt hỏi lại;
-- routing nếu thiếu quyền chứ không thiếu kiến thức.
+Những số liệu này dùng để đánh giá automation coverage và mức giảm thao tác thủ công của support.
 
-Auto-reply không thay bước phải đụng dữ liệu (reset mật khẩu, sửa payment, enroll hộ). Những bước đó vẫn cần workflow hoặc người có quyền.
+### 9.2. CRM Payment — ưu tiên xác định nguyên nhân trước khi tự động hóa
 
-Cùng logic “đã có quy định mà vẫn còn ticket”: nếu nhiều phiếu login do tài khoản bị khóa theo rule (ví dụ lâu không đăng nhập), hướng thêm là nhắc trước ngày khóa — không chỉ reset từng phiếu.
+Payment có 13 ticket và là nhóm lớn nhất trên CRM. Tuy nhiên, các ticket gồm nhiều loại yêu cầu khác nhau như QR, payment, trạng thái giao dịch, hóa đơn và mã giảm giá.
 
-## 11. Kế hoạch phân tích tiếp theo
+Dữ liệu hiện tại mới cho thấy Payment tạo ra nhiều yêu cầu support, chưa cho biết nguyên nhân chính là:
 
-### 11.1. Đo hiệu quả workflow login
+- người dùng chưa biết thao tác;
+- thiếu quyền;
+- thiếu thông tin;
+- lỗi dữ liệu/hệ thống;
+- hay nghiệp vụ bắt buộc phải có người kiểm soát.
 
-Không chỉ ghi nhận tool đã chạy được mà cần đo bằng số liệu.
+Vì vậy, chưa nên xây automation tự thay đổi dữ liệu payment.
 
-Mỗi ticket thử nghiệm nên ghi:
+Khi xử lý nhóm này cần ghi nhận thêm nguyên nhân cuối cùng, người/bộ phận xử lý, thao tác thực tế và việc ticket có phải hỏi bổ sung thông tin hay không. Nếu nguyên nhân chủ yếu là thiếu thông tin thì chuẩn hóa form; nếu thiếu quyền thì cải thiện routing; nếu người dùng chưa biết thao tác thì dùng guide; nếu là lỗi hệ thống thì chuyển điều tra kỹ thuật.
 
-Ticket → workflow xử lý tới bước nào → có cần support can thiệp không → thời gian xử lý → kết quả cuối cùng.
+### 9.3. LMS/CRM Enroll — cùng nghiệp vụ nhưng tách quy trình
 
-Sau một số lượng ticket đủ lớn có thể tính:
+Enroll có 15 ticket, gồm 9 trên LMS và 6 trên CRM. Đây là nhóm có volume lớn nhất nếu chỉ nhìn theo loại việc.
 
-- Automation coverage.
-- Tỷ lệ cần support can thiệp.
-- Thời gian trung bình trước và sau automation.
-- Các lý do khiến workflow không xử lý được.
+Tuy nhiên, LMS và CRM có dữ liệu và thao tác khác nhau nên không nên xây một hướng xử lý chung chỉ vì cùng tên “Enroll”.
 
-Khi đó mới có thể kết luận tool thực sự giảm bao nhiêu thao tác support.
+Với LMS, cần xác định ticket do thao tác, dữ liệu lớp/học viên, quyền hay lỗi hệ thống. Với CRM, cần tập trung vào thao tác và dữ liệu trên enrollment.
 
-### 11.2. Phân tích sâu Payment và Enroll
+Thông tin đầu vào có thể được chuẩn hóa theo:
 
-Payment và Enroll đều có volume cao nhưng dữ liệu hiện tại mới chủ yếu cho biết nội dung yêu cầu.
+Hệ thống → mã lớp → thông tin học viên → thao tác đã thử → lỗi nhìn thấy.
 
-Cần lấy mẫu ticket và bổ sung:
+Guide cũng cần tách riêng LMS và CRM. Nếu guide đã tồn tại nhưng ticket vẫn phát sinh thì cần kiểm tra người dùng có tìm thấy tài liệu không, tài liệu có còn đúng không và vấn đề có thực sự giải quyết được bằng guide hay không.
 
-Nguyên nhân → thao tác support → người/bộ phận xử lý → thời gian → kết quả.
+### 9.4. TMS — ưu tiên nhận diện incident
 
-Sau đó mới quyết định giải pháp phù hợp.
+TMS có 20 ticket, trong đó 18 ticket thuộc chấm công hoặc lỗi hệ thống.
 
-Có thể có bốn hướng:
+Các ticket này cần được bổ sung thông tin:
 
-- Guide: nếu người dùng chưa biết thao tác.
-- Form: nếu support thường xuyên phải hỏi lại thông tin.
-- Routing: nếu ticket thường phải chuyển cho đúng người có quyền.
-- Automation: nếu quy trình có điều kiện rõ, lặp lại và an toàn để máy thực hiện.
+Thời gian → cơ sở/khu vực → ca làm việc → người bị ảnh hưởng → số người cùng gặp → triệu chứng.
 
-### 11.3. Gom ticket cùng sự cố
+Nếu nhiều ticket trùng thời gian, khu vực và triệu chứng thì support cần kiểm tra khả năng chúng thuộc cùng một incident.
 
-Không chỉ TMS. Mọi phiếu chậm, không thao tác, mất dữ liệu, không gọi được nên bổ sung:
+Mục tiêu là tránh nhiều support cùng điều tra một nguyên nhân dưới nhiều ticket khác nhau. Hệ thống có thể hỗ trợ phát hiện ticket tương tự, nhưng việc kết luận cùng root cause vẫn cần người xử lý xác nhận.
 
-thời gian + cơ sở + số người bị ảnh hưởng + triệu chứng.
+### 9.5. Guide / tài liệu — không mặc định “có ticket thì viết guide”
 
-Trùng các yếu tố đó thì kiểm tra incident chung, tránh nhiều support điều tra một nguyên nhân dưới các ticket khác nhau.
+Guide chỉ phù hợp khi nguyên nhân ticket thực sự liên quan đến việc người dùng thiếu hướng dẫn.
 
-### 11.4. Đo thử auto-reply + tài liệu
+Nếu chưa có guide và thao tác có thể tự thực hiện, có thể bổ sung tài liệu.
 
-Sau khi gắn auto-reply, cần đếm:
+Nếu đã có guide nhưng ticket vẫn tiếp tục phát sinh, cần kiểm tra:
 
-- số ticket enroll / thanh toán / mật khẩu được gửi tài liệu ngay;
-- số ticket người dùng tự xử lý xong, không cần support vào;
-- số ticket vẫn phải hỗ trợ tay sau khi đã nhận guide.
+- người dùng có biết guide tồn tại không;
+- guide có dễ tìm không;
+- nội dung còn đúng với hệ thống hiện tại không;
+- người dùng đọc guide nhưng vẫn không thực hiện được;
+- hay vấn đề thực chất là quyền hoặc lỗi hệ thống.
 
-## 12. Kết luận
+Nếu nguyên nhân chỉ là khó tìm tài liệu, có thể thử auto-reply kèm đúng guide khi ticket được tạo. Hiệu quả cần được đánh giá bằng số ticket người dùng tự xử lý được sau khi nhận tài liệu, thay vì chỉ đo số lần guide được gửi.
 
-Phân tích 131 ticket cho thấy khối lượng support tập trung chủ yếu tại CRM, LMS và TMS với 83 ticket, chiếm 63,4% tổng số.
+## 10. Kết luận
 
-Ở từng hệ thống, vấn đề tập trung khác nhau:
+Phân tích 131 ticket cho thấy khối lượng support tập trung chủ yếu tại CRM, LMS và TMS, với tổng cộng 83 ticket, chiếm 63,4%.
 
-- CRM: nổi bật nhất là thanh toán, lead/trạng thái và enroll.
-- LMS: chủ yếu là enroll và quản lý lớp/giáo viên/học phần.
-- TMS: phần lớn ticket liên quan đến chấm công hoặc lỗi hệ thống.
+Tuy nhiên, số lượng ticket chỉ giúp xác định nơi cần ưu tiên xem xét, chưa đủ để quyết định giải pháp.
 
-Điểm quan trọng là nhiều ticket không đồng nghĩa nên tự động hóa ngay.
+Trên CRM, Payment là nhóm lớn nhất nhưng gồm nhiều loại yêu cầu nghiệp vụ và chưa có dữ liệu root cause. Vì vậy, hướng phù hợp hiện tại là phân loại nguyên nhân và chuẩn hóa quy trình xử lý trước khi cân nhắc automation.
 
-Payment có volume lớn nhưng liên quan đến dữ liệu tài chính và chưa rõ nguyên nhân chính.
+Trên LMS, ticket tập trung vào Enroll và quản lý lớp/giáo viên/học phần. Với Enroll, cần phân biệt vấn đề do thao tác, dữ liệu, quyền hay lỗi hệ thống; đồng thời không gộp quy trình LMS với CRM chỉ vì cùng tên nghiệp vụ.
 
-Enroll có volume lớn nhưng phải tách LMS và CRM.
+Trên TMS, 90% ticket nằm ở chấm công hoặc lỗi hệ thống. Các ticket có cùng thời gian, khu vực và triệu chứng cần được kiểm tra theo hướng incident chung để tránh xử lý lặp lại.
 
-TMS có dấu hiệu một số ticket có thể thuộc cùng incident, cần bổ sung thời gian, khu vực và phạm vi ảnh hưởng để xác nhận.
+Nhóm Login có đặc điểm khác: ticket rải trên nhiều hệ thống nhưng chuỗi kiểm tra support có tính lặp lại và điều kiện xử lý tương đối rõ. Vì vậy đây là nhóm phù hợp để tiếp tục sử dụng workflow automation. Việc đánh giá hiệu quả cần dựa trên tỷ lệ workflow xử lý hoàn toàn, tỷ lệ vẫn cần support can thiệp và thời gian xử lý thực tế.
 
-Login không phải nhóm lớn nhất trên một hệ thống cụ thể, nhưng quy trình kiểm tra có tính lặp lại và điều kiện tương đối rõ. Vì vậy đây là nhóm phù hợp để tiếp tục thử workflow và đo hiệu quả bằng số liệu thực tế.
+Từ dữ liệu hiện tại, hướng ưu tiên là:
 
-Chưa xác nhận Helpdesk đã có bài hay chưa. Chưa có thì viết từng việc. Có rồi mà ticket vẫn vào thì không dừng ở “đã có guide”: thử auto-reply + gắn file, hoặc form / routing nếu vấn đề là quyền và thiếu thông tin.
+- Đo hiệu quả thực tế của workflow login đã triển khai.
+- Xác định root cause của các nhóm có volume cao như Payment và Enroll trước khi chọn giải pháp.
+- Bổ sung thông tin phạm vi cho ticket TMS để nhận diện incident.
+- Chỉ sử dụng guide, form, routing hoặc automation khi nguyên nhân thực tế phù hợp với giải pháp đó.
 
-Ticket chậm, mất dữ liệu hoặc nhiều người cùng triệu chứng: hỏi phạm vi trước, chưa gán nguyên nhân server. Cách này dùng cho LMS, TMS, CRM hay hệ thống khác — không chờ đúng tiêu đề “LMS chậm”.
+Kết luận chính của báo cáo là:
 
-Tính năng mới và việc có hạn chót ghi nhận hoặc xin người có quyền, không đưa vào automation.
+Volume cho biết nên nhìn vào đâu; pattern cho biết support đang lặp lại việc gì; root cause cho biết vì sao ticket phát sinh. Chỉ sau khi xác định được ba yếu tố này mới nên lựa chọn giải pháp cải thiện.

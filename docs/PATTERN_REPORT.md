@@ -20,11 +20,18 @@ Mục tiêu của báo cáo không chỉ là đếm số lượng ticket, mà l�
 ### 2.1. Ticket tập trung ở hệ thống nào?
 
 ```mermaid
-xychart-beta
-    title "Ticket theo hệ thống — 131 ticket"
-    x-axis ["CRM", "LMS", "TMS", "Test", "Denise", "E-contract", "Mail", "Khác", "Crystal", "Ecount", "Nội bộ"]
-    y-axis "Số ticket" 0 --> 40
-    bar [37, 26, 20, 12, 8, 7, 6, 6, 4, 3, 2]
+pie title Ticket theo hệ thống — 131 ticket
+  "CRM" : 37
+  "LMS" : 26
+  "TMS" : 20
+  "Test" : 12
+  "Denise" : 8
+  "E-contract" : 7
+  "Mail" : 6
+  "Khác" : 6
+  "Crystal" : 4
+  "Ecount" : 3
+  "Nội bộ" : 2
 ```
 
 CRM, LMS và TMS có tổng cộng 83/131 ticket, chiếm 63,4% tổng số ticket. Trong đó CRM có số lượng lớn nhất với 37 ticket, tiếp theo là LMS với 26 ticket và TMS với 20 ticket.
@@ -38,11 +45,15 @@ Dữ liệu hiện tại không có số lượng người sử dụng từng h�
 ### 2.2. Các nhóm việc xuất hiện nhiều nhất
 
 ```mermaid
-xychart-beta
-    title "Các nhóm việc có số lượng ticket nổi bật"
-    x-axis ["Enroll", "Thanh toán", "Không đăng nhập", "Chấm công", "Test", "Lead / trạng thái", "Lớp / GV / học phần", "Hợp đồng"]
-    y-axis "Số ticket" 0 --> 16
-    bar [15, 13, 12, 12, 12, 7, 7, 7]
+pie title Các nhóm việc có số lượng ticket nổi bật
+  "Enroll" : 15
+  "Thanh toán" : 13
+  "Không đăng nhập" : 12
+  "Chấm công" : 12
+  "Test" : 12
+  "Lead / trạng thái" : 7
+  "Lớp / GV / học phần" : 7
+  "Hợp đồng" : 7
 ```
 
 Enroll là nhóm có số lượng lớn nhất với 15 ticket. Tiếp theo là thanh toán với 13 ticket; không đăng nhập, chấm công và ticket test đều có 12 ticket.
@@ -54,11 +65,15 @@ Tuy nhiên, không nên lựa chọn giải pháp chỉ dựa vào tên nhóm. V
 CRM có 37/131 ticket, chiếm 28,2% tổng số ticket, là hệ thống có khối lượng ticket lớn nhất.
 
 ```mermaid
-xychart-beta
-    title "CRM — phân bố 37 ticket"
-    x-axis ["Thanh toán", "Lead / trạng thái", "Enroll", "Gọi / SMS", "Sửa / xuất dữ liệu", "Dropout", "Cấp / chuyển TK", "Không đăng nhập"]
-    y-axis "Số ticket" 0 --> 14
-    bar [13, 7, 6, 4, 3, 2, 1, 1]
+pie title CRM — phân bố 37 ticket
+  "Thanh toán" : 13
+  "Lead / trạng thái" : 7
+  "Enroll" : 6
+  "Gọi / SMS" : 4
+  "Sửa / xuất dữ liệu" : 3
+  "Dropout" : 2
+  "Cấp / chuyển TK" : 1
+  "Không đăng nhập" : 1
 ```
 
 Ba nhóm thanh toán, lead/trạng thái và enroll có tổng cộng 26/37 ticket CRM, tương đương 70,3% ticket CRM. Vì vậy, nếu cần cải thiện support trên CRM thì nên bắt đầu từ ba nhóm này thay vì xử lý dàn trải tất cả loại ticket.
@@ -135,11 +150,15 @@ Do đó, nếu sau này xây guide hoặc auto-reply thì phải xác định ti
 LMS có 26 ticket, đứng thứ hai sau CRM.
 
 ```mermaid
-xychart-beta
-    title "LMS — phân bố 26 ticket"
-    x-axis ["Enroll", "Lớp / GV / học phần", "Compass / học tập", "Cấp / chuyển TK", "Dropout", "Điểm thưởng", "Không đăng nhập", "Điểm danh lớp"]
-    y-axis "Số ticket" 0 --> 10
-    bar [9, 7, 3, 2, 2, 1, 1, 1]
+pie title LMS — phân bố 26 ticket
+  "Enroll" : 9
+  "Lớp / GV / học phần" : 7
+  "Compass / học tập" : 3
+  "Cấp / chuyển TK" : 2
+  "Dropout" : 2
+  "Điểm thưởng" : 1
+  "Không đăng nhập" : 1
+  "Điểm danh lớp" : 1
 ```
 
 Hai nhóm lớn nhất là Enroll (9) và Lớp/GV/học phần (7), tổng cộng 16/26 ticket, tương đương 61,5% ticket LMS.
@@ -264,11 +283,14 @@ Quyết định gom ticket vẫn nên do support xác nhận, không nên để 
 Nhóm không đăng nhập, khóa tài khoản hoặc quên mật khẩu có 12 ticket, phân bố trên 7 hệ thống.
 
 ```mermaid
-xychart-beta
-    title "Không đăng nhập — phân bố trên 7 hệ thống"
-    x-axis ["Denise", "TMS", "Mail", "Ecount", "Nội bộ", "LMS", "CRM"]
-    y-axis "Số ticket" 0 --> 3
-    bar [2, 2, 2, 2, 2, 1, 1]
+pie title Không đăng nhập — phân bố trên 7 hệ thống
+  "Denise" : 2
+  "TMS" : 2
+  "Mail" : 2
+  "Ecount" : 2
+  "Nội bộ" : 2
+  "LMS" : 1
+  "CRM" : 1
 ```
 
 Không có hệ thống nào chiếm phần lớn nhóm login. Điều đáng chú ý ở nhóm này không phải số lượng ticket trên từng hệ thống mà là quy trình support có tính lặp lại.
@@ -321,11 +343,12 @@ Nếu xây guide, form hoặc auto-reply thì hệ thống cần xác định tr
 ## 8. Trạng thái ticket
 
 ```mermaid
-xychart-beta
-    title "Trạng thái 131 ticket"
-    x-axis ["Resolved", "First Response Sent", "Cancelled", "New", "In Progress"]
-    y-axis "Số ticket" 0 --> 100
-    bar [91, 17, 12, 6, 5]
+pie title Trạng thái 131 ticket
+  "Resolved" : 91
+  "First Response Sent" : 17
+  "Cancelled" : 12
+  "New" : 6
+  "In Progress" : 5
 ```
 
 Có 91/131 ticket ở trạng thái Resolved, tương đương 69,5%.

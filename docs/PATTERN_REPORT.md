@@ -178,13 +178,13 @@ pie title Enroll LMS và Enroll CRM
 
 **Enroll CRM (6):** thao tác enrollment, chỉnh sửa thông tin trên enrollment.
 
-## 6. Các viễn cảnh cần phân biệt khi điều tra ticket
+## 6. Các trường hợp cần phân biệt khi điều tra ticket
 
-Một Subject giống nhau có thể xuất phát từ các nguyên nhân khác nhau. Với những ticket chưa có log xử lý, báo cáo chỉ đưa ra các viễn cảnh cần kiểm tra, không coi chúng là root cause đã xác nhận.
+Một Subject giống nhau có thể xuất phát từ các nguyên nhân khác nhau. Với những ticket chưa có log xử lý, báo cáo chỉ đưa ra các trường hợp cần kiểm tra, không coi chúng là root cause đã xác nhận.
 
 ### 6.1. Hệ thống chậm / timeout / tải lâu
 
-Dữ liệu hiện tại chưa cho thấy "LMS chậm" là một nhóm lớn. Nếu xuất hiện ticket dạng chậm, timeout hoặc tải lâu, cần kiểm tra theo các viễn cảnh sau:
+Dữ liệu hiện tại chưa cho thấy "LMS chậm" là một nhóm lớn. Nếu xuất hiện ticket dạng chậm, timeout hoặc tải lâu, cần kiểm tra theo các trường hợp sau:
 
 - **Chỉ một người gặp:** kiểm tra trình duyệt, thiết bị, mạng và tài khoản của người đó.
 - **Nhiều người trong cùng một cơ sở gặp:** kiểm tra mạng/cấu hình tại cơ sở và dữ liệu dùng chung.
@@ -196,7 +196,7 @@ Ticket dạng này nên có: thời điểm xảy ra, người/cơ sở bị ả
 
 ### 6.2. Nhiều người cùng triệu chứng
 
-Nếu nhiều ticket có triệu chứng giống nhau, có ba viễn cảnh chính:
+Nếu nhiều ticket có triệu chứng giống nhau, có ba trường hợp chính:
 
 - Các ticket độc lập nhưng mô tả giống nhau.
 - Một lỗi dữ liệu hoặc cấu hình chung của cùng cơ sở/nhóm người dùng.
@@ -241,7 +241,7 @@ High và Urgent có tổng cộng **82/131 ticket**, chiếm **62,6%**. Đây l�
 
 ## 8. Phương án xử lý theo từng nhóm ticket
 
-Các phương án dưới đây được tách theo từng viễn cảnh nguyên nhân. Với guide, file hiện tại không ghi nhận nhóm nào đã có tài liệu và nhóm nào chưa có, vì vậy các đề xuất guide/auto-reply là **giả định** cần kiểm tra trước khi triển khai.
+Các phương án dưới đây được tách theo từng trường hợp nguyên nhân. Với guide, file hiện tại không ghi nhận nhóm nào đã có tài liệu và nhóm nào chưa có, vì vậy các đề xuất guide/auto-reply là **giả định** cần kiểm tra trước khi triển khai.
 
 ### 8.1. CRM — Thanh toán (13 ticket)
 
@@ -249,7 +249,7 @@ Nhóm này gồm tạo QR, add/gỡ payment, hủy/confirm giao dịch, cập nh
 
 **Thông tin cần có ngay khi tạo ticket:** mã lead/enrollment, loại yêu cầu, số tiền nếu liên quan, trạng thái hiện tại, kết quả mong muốn, thao tác đã thử và ảnh lỗi nếu có.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **User chưa biết thao tác:** nếu thao tác được phép tự làm, gửi đúng guide Payment CRM.
 - **Đã có guide nhưng ticket vẫn vào:** kiểm tra guide có dễ tìm, còn đúng giao diện và đủ bước không. Nếu chỉ khó tìm, auto-reply theo loại yêu cầu và gắn đúng tài liệu.
@@ -258,13 +258,13 @@ Nhóm này gồm tạo QR, add/gỡ payment, hủy/confirm giao dịch, cập nh
 - **CRM/dữ liệu lỗi:** ghi thao tác, ảnh lỗi, bản ghi liên quan và phạm vi ảnh hưởng rồi chuyển điều tra kỹ thuật.
 - **Nghiệp vụ bắt buộc người kiểm soát:** giữ bước xử lý/phê duyệt thủ công.
 
-Không auto sửa số tiền, trạng thái đóng tiền hoặc bản ghi payment ở giai đoạn này. Cần ghi root cause và thao tác xử lý thực tế của 13 ticket để biết viễn cảnh nào chiếm nhiều nhất.
+Không auto sửa số tiền, trạng thái đóng tiền hoặc bản ghi payment ở giai đoạn này. Cần ghi root cause và thao tác xử lý thực tế của 13 ticket để biết trường hợp nào chiếm nhiều nhất.
 
 ### 8.2. CRM — Lead / trạng thái (7 ticket)
 
 **Thông tin đầu vào:** mã lead, trạng thái hiện tại, trạng thái mong muốn, lý do đổi và ảnh lỗi nếu không thao tác được.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **User chưa biết cách đổi trạng thái và có quyền tự làm:** guide Lead CRM.
 - **Guide đã có nhưng khó tìm:** auto-reply kèm đúng bài hướng dẫn.
@@ -279,7 +279,7 @@ Chưa auto đổi trạng thái lead cho đến khi có quy tắc nghiệp vụ 
 
 **Thông tin đầu vào:** mã enrollment/lead, trường cần sửa, giá trị hiện tại, giá trị mong muốn và thao tác đã thử.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **User được phép tự sửa nhưng chưa biết thao tác:** dùng guide Enroll CRM.
 - **Guide đã có nhưng ticket vẫn phát sinh:** kiểm tra khả năng tìm thấy và độ cập nhật; nếu chỉ khó tìm thì auto-reply kèm guide.
@@ -294,7 +294,7 @@ Hiện chưa đủ dữ liệu để auto ghi enrollment.
 
 **Thông tin đầu vào:** mã lớp, thông tin học viên, slot nếu liên quan, thao tác đã thử và ảnh/thông báo lỗi.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **Thao tác chưa đúng:** dùng guide Enroll LMS.
 - **Đã có guide nhưng ticket vẫn vào:** kiểm tra guide có dễ tìm, còn đúng giao diện và giải quyết đúng tình huống không; nếu chỉ khó tìm thì auto-reply kèm guide.
@@ -309,7 +309,7 @@ Chưa auto enroll học viên vì chưa có đủ rule và trường hợp ngo�
 
 **Thông tin đầu vào:** mã lớp/học phần, giáo viên liên quan, yêu cầu cần thực hiện, thao tác đã thử và ảnh lỗi.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **User được phép tự thao tác nhưng chưa biết cách:** nếu chưa có guide thì tạo guide; nếu đã có thì kiểm tra khả năng tìm thấy và độ cập nhật.
 - **Guide đúng nhưng khó tìm:** auto-reply kèm đúng tài liệu theo loại yêu cầu.
@@ -323,7 +323,7 @@ Không auto sửa lớp/GV/học phần khi chưa có rule nghiệp vụ và quy
 
 **Thông tin đầu vào:** cơ sở, thời điểm, ca làm việc, người bị ảnh hưởng, số người cùng gặp, triệu chứng và ảnh lỗi.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **Một người bị sai công:** kiểm tra dữ liệu cá nhân, ca làm việc và lịch sử ghi nhận.
 - **Nhiều người cùng ca/cơ sở:** kiểm tra dữ liệu hoặc cấu hình chung tại cơ sở.
@@ -339,7 +339,7 @@ Ticket **233** và **234** cùng liên quan đến Tỉnh Nam 2, có triệu ch�
 
 **Thông tin đầu vào:** cơ sở, thời điểm bắt đầu, triệu chứng, chức năng bị ảnh hưởng, số người cùng gặp và ảnh lỗi.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **Chỉ một user:** kiểm tra tài khoản/dữ liệu cá nhân trước.
 - **Nhiều user cùng cơ sở:** kiểm tra dữ liệu/cấu hình chung.
@@ -355,7 +355,7 @@ Login xuất hiện trên Denise, TMS, Mail, Ecount, Nội bộ, LMS và CRM. Đ
 
 **Thông tin đầu vào:** hệ thống, user/email, triệu chứng, thông báo lỗi và thao tác đã thử.
 
-**Các viễn cảnh xử lý:**
+**Các trường hợp xử lý:**
 
 - **Quên mật khẩu và hệ thống có self-service:** gửi hướng dẫn reset.
 - **Guide/self-service đã có nhưng user không tìm thấy:** auto-reply kèm đúng tài liệu của hệ thống.
@@ -372,7 +372,7 @@ Test có 12 ticket, bằng số lượng Login và Chấm công, nên không nê
 
 Tuy nhiên, dữ liệu hiện có trong báo cáo chưa cho biết đủ nội dung xử lý/root cause để chia 12 ticket Test thành các tình huống cụ thể mà không suy đoán.
 
-**Các viễn cảnh cần kiểm tra trước khi chọn giải pháp:**
+**Các trường hợp cần kiểm tra trước khi chọn giải pháp:**
 
 - **Ticket thực chất là yêu cầu test/kiểm tra nghiệp vụ:** xác định người yêu cầu, phạm vi test và kết quả mong muốn.
 - **User chưa biết quy trình test:** kiểm tra guide/SOP; nếu đã có nhưng khó tìm thì auto-reply kèm tài liệu.
@@ -380,7 +380,7 @@ Tuy nhiên, dữ liệu hiện có trong báo cáo chưa cho biết đủ nội 
 - **Test phát hiện bug:** ghi bước tái hiện, expected/actual result, dữ liệu test, ảnh/video và chuyển Dev.
 - **Nhiều ticket Test cùng một lỗi:** kiểm tra khả năng cùng một defect/incident thay vì xử lý độc lập.
 
-Trước khi đề xuất automation cho nhóm Test, cần đọc nội dung chi tiết và log xử lý của 12 ticket để xác định chúng thực sự thuộc viễn cảnh nào.
+Trước khi đề xuất automation cho nhóm Test, cần đọc nội dung chi tiết và log xử lý của 12 ticket để xác định chúng thực sự thuộc trường hợp nào.
 
 ### 8.10. Các hệ thống còn lại
 
@@ -402,7 +402,7 @@ Trong 131 ticket, CRM, LMS và TMS chiếm **83 ticket (63,4%)**, nên đây v�
 
 **Login** tiếp tục là nhóm phù hợp để thử workflow vì chuỗi kiểm tra có tính lặp lại và điều kiện xử lý tương đối rõ. Bước đánh giá tiếp theo của workflow là đo coverage, tỷ lệ xử lý hoàn toàn, tỷ lệ cần support can thiệp và thời gian xử lý thực tế.
 
-**Nhóm Test** có 12 ticket nên được đưa vào phạm vi rà soát tiếp theo về nội dung xử lý. Báo cáo hiện chưa có đủ dữ liệu để gán root cause hoặc chọn một giải pháp cụ thể cho nhóm này; vì vậy phần Test chỉ nêu các viễn cảnh cần kiểm tra thay vì tự suy đoán.
+**Nhóm Test** có 12 ticket nên được đưa vào phạm vi rà soát tiếp theo về nội dung xử lý. Báo cáo hiện chưa có đủ dữ liệu để gán root cause hoặc chọn một giải pháp cụ thể cho nhóm này; vì vậy phần Test chỉ nêu các trường hợp cần kiểm tra thay vì tự suy đoán.
 
 Các hướng ưu tiên từ báo cáo hiện tại là:
 

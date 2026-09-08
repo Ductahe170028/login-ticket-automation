@@ -52,11 +52,9 @@ pie title Các nhóm việc có số lượng ticket nổi bật
   "Hợp đồng" : 7
 ```
 
-Các nhóm có số lượng nổi bật nhất là Enroll 15, Thanh toán 13, Không đăng nhập 12, Chấm công 12 và Test 12.
+Các nhóm có số lượng nổi bật nhất là Enroll 15 (LMS 9, CRM 6), Thanh toán 13, Không đăng nhập 12, Chấm công 12 và Test 12.
 
-Nhưng chưa thể chọn ngay “nhóm nhiều nhất để làm tool”. Ví dụ, 15 ticket enroll thực tế gồm 9 ticket trên LMS và 6 ticket trên CRM. Cùng là enroll nhưng thao tác, dữ liệu và quyền xử lý khác nhau.
-
-Ngược lại, 13 ticket thanh toán đều nằm trên CRM, nên đây là một cụm nghiệp vụ rõ hơn.
+13 ticket thanh toán đều trên CRM.
 
 Từ đây báo cáo tách thành hai góc nhìn:
 
@@ -127,11 +125,7 @@ Nếu nguyên nhân chủ yếu là thiếu quyền thì hướng phù hợp là
 
 #### 4.1.3. Enroll trên CRM — 6 ticket
 
-CRM có 6 ticket enroll. Các ticket này cần tách khỏi enroll trên LMS dù đều liên quan đến học viên/lớp, vì thao tác xử lý nằm trên hai hệ thống khác nhau.
-
-Với CRM, nội dung chủ yếu liên quan đến enrollment hoặc chỉnh sửa thông tin trên enrollment.
-
-Kết luận: có thể gom enroll để nhìn tổng volume, nhưng không được dùng một quy trình xử lý chung cho CRM và LMS.
+CRM có 6 ticket enroll. Nội dung chủ yếu liên quan đến enrollment hoặc chỉnh sửa thông tin trên enrollment.
 
 ### 4.2. LMS — 26 ticket
 
@@ -273,29 +267,19 @@ Vì vậy, mục tiêu tiếp theo là đo:
 
 Khi có số liệu này mới đánh giá được automation coverage và hiệu quả thực tế.
 
-### 5.2. Enroll — 15 ticket trên hai hệ thống
+### 5.2. Enroll LMS — 9 ticket; Enroll CRM — 6 ticket
 
 ```mermaid
-pie title Enroll theo hệ thống — 15 ticket
-  "LMS" : 9
-  "CRM" : 6
+pie title Enroll LMS và Enroll CRM
+  "Enroll LMS" : 9
+  "Enroll CRM" : 6
 ```
 
-Enroll là nhóm lớn nhất nếu chỉ nhìn theo tên công việc, nhưng pattern ở đây khác login.
+**Enroll LMS (9):** thêm học viên, không tìm thấy lớp hoặc slot, enroll trùng, lỗi enroll.
 
-Login có thể có một chuỗi kiểm tra tương đối giống nhau.
+**Enroll CRM (6):** thao tác enrollment, chỉnh sửa thông tin trên enrollment.
 
-Enroll phụ thuộc mạnh vào hệ thống.
-
-Enroll vẫn có thể tự động hóa từng phần: form chặn phiếu thiếu field, auto-reply kèm hướng dẫn, về sau workflow enroll riêng từng hệ thống nếu có API và điều kiện đủ rõ. Tuần 5 chưa làm workflow enroll vì phải tách LMS và CRM, cần nhiều field hơn login, và thao tác ghi dữ liệu lớp rủi ro cao hơn reset mật khẩu.
-
-Hướng trước mắt: chuẩn hóa đầu vào và tách quy trình LMS/CRM.
-
-Thông tin đầu vào có thể gồm:
-
-Hệ thống → mã lớp → thông tin học viên → thao tác đã thử → lỗi nhìn thấy
-
-Sau khi gom đủ phiếu cùng một hệ thống mới đánh giá bước nào lặp lại đủ rõ để tự động hóa tiếp.
+Mỗi nhóm xử lý trên hệ thống của nó. Hướng auto từng nhóm ghi ở mục 8.
 
 ## 6. Những tình huống không nên vội chốt nguyên nhân
 
@@ -377,113 +361,33 @@ High + Urgent có 82/131 ticket, chiếm 62,6%.
 
 Nếu không có quy tắc gán priority rõ ràng, tỷ lệ High/Urgent cao có thể làm giảm ý nghĩa của chính trường priority.
 
-## 8. Từ phân tích đến quyết định cải thiện
+## 8. Hướng xử lý theo từng hệ thống
 
-Sau khi đi qua dữ liệu, có thể thấy không có một giải pháp chung cho mọi ticket.
+**Form:** trước khi tạo ticket, bắt buộc điền field (ví dụ enroll LMS: mã lớp, tên, SĐT; payment: mã lead, số tiền, việc cần làm). Thiếu field thì chưa mở phiếu, bớt hỏi lại.
 
-| Nhóm | Điều đã biết | Điều chưa biết | Hướng hợp lý hiện tại |
-| --- | --- | --- | --- |
-| CRM — Payment | 13 ticket, nhiều dạng nghiệp vụ | Root cause và thao tác support thực tế | Có thể auto-reply / form / chuyển kế toán. Chưa auto sửa payment. |
-| CRM — Lead | 7 ticket | Chủ yếu thiếu thông tin, thiếu quyền hay lỗi hệ thống | Có thể form + auto chuyển người có quyền. Chưa auto đổi trạng thái lead. |
-| LMS — Enroll | 9 ticket | Root cause từng ticket | Có thể form + auto-reply. Workflow enroll LMS làm sau, tách với CRM. |
-| CRM — Enroll | 6 ticket | Bước lặp lại thực tế | Có thể auto-reply / form riêng CRM. Chưa gộp một bot enroll chung. |
-| TMS — Chấm công | 12 ticket, nhiều triệu chứng | Phạm vi ảnh hưởng và root cause | Có thể auto gắn phiếu cùng triệu chứng. Chưa auto sửa bảng công. |
-| TMS — Lỗi hệ thống | 6 ticket, có cụm Nam 2 | Có thực sự cùng root cause không | Có thể auto gom ticket giống nhau; người xác nhận incident. |
-| Login | 12 ticket, 7 hệ thống, quy trình kiểm tra lặp lại | Workflow xử lý được bao nhiêu | Đã làm workflow tuần 5; đo coverage. |
-| Guide / tài liệu | Có khả năng hỗ trợ nhiều nhóm | Chưa biết KB hiện có gì và user có đọc không | Auto-reply + gắn file là một dạng auto, dùng được cho nhiều nhóm. |
+**Auto-reply:** ticket vừa tạo, tiêu đề khớp từ khóa thì hệ thống gửi mail/trả lời sẵn và **gắn file hướng dẫn**. Support chỉ vào nếu người dùng vẫn kẹt.
 
-Điểm rút ra:
+Hai việc này là auto hỗ trợ. Khác workflow login: login còn reset/mở khóa tài khoản.
 
-Volume trả lời “nên nhìn vào đâu”.  
-Pattern trả lời “support đang lặp lại việc gì”.  
-Root cause trả lời “vì sao ticket phát sinh”.  
-Chỉ sau ba bước đó mới chọn được giải pháp.
+Tuần 5 đã làm workflow login. Các hàng dưới vẫn auto được theo cột “Có thể auto”; chưa làm hết trong tuần 5.
 
-## 9. Hướng xử lý và ưu tiên
+| Hệ thống | Việc | Số | Đã biết | Chưa biết | Có thể auto | Việc làm |
+| --- | --- | ---: | --- | --- | --- | --- |
+| CRM | Thanh toán | 13 | QR, add/gỡ payment, hủy–confirm, đóng tiền, hóa đơn, mã giảm giá | Tỷ trọng: chưa biết thao tác / thiếu quyền / thiếu field / lỗi CRM | Auto-reply + form (mã lead, số tiền, việc cần). Auto chuyển kế toán | Không auto sửa số tiền. Ghi nguyên nhân từng phiếu rồi mới tính workflow ghi dữ liệu |
+| CRM | Lead / trạng thái | 7 | Đổi trạng thái, dữ liệu lead, không thao tác được | Thiếu thông tin, thiếu quyền hay lỗi | Form (mã lead, trạng thái hiện tại / mong muốn). Auto chuyển người có quyền | Không auto đổi trạng thái lead |
+| CRM | Enroll | 6 | Enrollment, sửa thông tin trên enrollment | Bước lặp lại khi xử lý tay | Form enrollment CRM. Auto-reply bài CRM | Workflow enroll CRM: sau này, khi có API và field đủ |
+| LMS | Enroll | 9 | Add HV, không thấy lớp/slot, enroll trùng, lỗi enroll | Thao tác / thiếu dữ liệu / quyền / lỗi LMS | Form (mã lớp, tên, SĐT, thao tác đã thử). Auto-reply bài LMS | Workflow enroll LMS: sau này, khi có API LMS và field đủ |
+| LMS | Lớp / GV / học phần | 7 | Không add GV, chỉnh lớp, lỗi học phần | Yêu cầu quyền hay lỗi chức năng | Auto chuyển người có quyền nếu là nghiệp vụ | Lỗi chức năng: ghi thao tác, ảnh, phạm vi → Dev |
+| TMS | Chấm công | 12 | Không hiện công, không duyệt, bù công, báo trễ, điểm danh GV | Một người hay cả cơ sở; root cause | Auto gắn các phiếu cùng cơ sở / thời điểm / triệu chứng | Không auto sửa bảng công. Người xác nhận incident |
+| TMS | Lỗi hệ thống | 6 | Mất dữ liệu, không hiện, không thao tác. Có cụm Nam 2 (233, 234) | Cùng root cause hay không | Auto gom phiếu trùng hệ thống + khu vực + thời gian + triệu chứng | Support xác nhận incident; không để máy tự kết luận |
+| Denise, TMS, Mail, Ecount, Nội bộ, LMS, CRM | Không đăng nhập / khóa / quên mật khẩu | 12 | Chuỗi: user → HR → tài khoản → reset/mở khóa nếu đủ điều kiện → phản hồi | Workflow đang cover được bao nhiêu hệ thống | **Đã triển khai** workflow (tuần 5) | Đo: số phiếu vào workflow; xử lý hết; vẫn cần support; không xử lý được + lý do; thời gian trước/sau |
 
-Từ các nhóm đã phân tích, không nên chọn giải pháp chỉ dựa trên số lượng ticket. Hướng xử lý cần dựa vào nguyên nhân, mức độ lặp lại của quy trình support và rủi ro của thao tác.
+Tài liệu hướng dẫn (áp cho từng việc trên, không viết một bài chung):
 
-Nhiều nhóm **vẫn tự động hóa được**, nhưng không cùng một kiểu. Auto-reply, form, chuyển ticket, gom phiếu giống nhau dùng được cho enroll, payment, lead, TMS. Auto thao tác dữ liệu (reset mật khẩu, sửa payment, enroll hộ) chỉ nên làm khi điều kiện đủ rõ và rủi ro chấp nhận được. Tuần 5 chọn login vì chuỗi kiểm tra rõ hơn, ít đụng tiền/lớp hơn — không phải vì các nhóm kia không làm auto được.
+- Chưa có bài và user tự làm được → viết bài đúng hệ thống + đúng việc.
+- Đã có bài mà ticket vẫn vào → kiểm tra bài có tìm thấy không, còn đúng không. Nếu chỉ khó tìm → auto-reply + gắn đúng file. Đo bằng số phiếu user tự xong sau khi nhận tài liệu, không đo số lần gửi file.
 
-### 9.1. Login — tiếp tục sử dụng workflow và đo hiệu quả thực tế
-
-Login có 12 ticket trên 7 hệ thống. Điểm đáng chú ý không phải là số ticket trên từng hệ thống, mà là chuỗi kiểm tra support có tính lặp lại:
-
-Xác định user → kiểm tra trạng thái nhân sự → kiểm tra tài khoản → xác định nguyên nhân → xử lý nếu đủ điều kiện → phản hồi.
-
-Đây là nhóm phù hợp nhất để làm workflow thao tác dữ liệu trong tuần 5: nhiều bước là kiểm tra trạng thái, điều kiện rõ, rủi ro thấp hơn sửa payment hay enroll.
-
-Workflow login hiện đã được triển khai. Tuy nhiên, chưa nên kết luận tool giúp giảm bao nhiêu thời gian chỉ dựa trên việc workflow chạy được. Cần ghi nhận ngay trong quá trình sử dụng:
-
-- tổng số ticket được đưa vào workflow;
-- số ticket workflow xử lý hoàn toàn;
-- số ticket workflow hỗ trợ một phần nhưng vẫn cần support;
-- số ticket không xử lý được và lý do;
-- thời gian xử lý thực tế.
-
-Những số liệu này dùng để đánh giá automation coverage và mức giảm thao tác thủ công của support.
-
-### 9.2. CRM Payment — có thể auto hỗ trợ, chưa auto sửa dữ liệu
-
-Payment có 13 ticket và là nhóm lớn nhất trên CRM. Tuy nhiên, các ticket gồm nhiều loại yêu cầu khác nhau như QR, payment, trạng thái giao dịch, hóa đơn và mã giảm giá.
-
-Dữ liệu hiện tại mới cho thấy Payment tạo ra nhiều yêu cầu support, chưa cho biết nguyên nhân chính là:
-
-- người dùng chưa biết thao tác;
-- thiếu quyền;
-- thiếu thông tin;
-- lỗi dữ liệu/hệ thống;
-- hay nghiệp vụ bắt buộc phải có người kiểm soát.
-
-Vì vậy tuần 5 chưa xây tool tự sửa payment. Vẫn có thể auto ngay: gửi hướng dẫn, bắt đủ field, chuyển kế toán.
-
-Khi xử lý nhóm này cần ghi nhận thêm nguyên nhân cuối cùng, người/bộ phận xử lý, thao tác thực tế và việc ticket có phải hỏi bổ sung thông tin hay không. Nếu nguyên nhân chủ yếu là thiếu thông tin thì chuẩn hóa form; nếu thiếu quyền thì cải thiện routing; nếu người dùng chưa biết thao tác thì dùng guide hoặc auto-reply; nếu là lỗi hệ thống thì chuyển điều tra kỹ thuật. Sau khi tỷ trọng nguyên nhân rõ, mới tính workflow ghi dữ liệu payment.
-
-### 9.3. LMS/CRM Enroll — cùng nghiệp vụ nhưng tách quy trình
-
-Enroll có 15 ticket, gồm 9 trên LMS và 6 trên CRM. Đây là nhóm có volume lớn nhất nếu chỉ nhìn theo loại việc.
-
-Tuy nhiên, LMS và CRM có dữ liệu và thao tác khác nhau nên không nên xây một workflow enroll chung chỉ vì cùng tên “Enroll”. Từng hệ thống vẫn có thể auto riêng sau này.
-
-Với LMS, cần xác định ticket do thao tác, dữ liệu lớp/học viên, quyền hay lỗi hệ thống. Với CRM, cần tập trung vào thao tác và dữ liệu trên enrollment.
-
-Thông tin đầu vào có thể được chuẩn hóa theo:
-
-Hệ thống → mã lớp → thông tin học viên → thao tác đã thử → lỗi nhìn thấy.
-
-Hướng auto phù hợp trước: form + auto-reply, tách bài LMS và CRM. Workflow enroll hộ chỉ nên làm khi đã chốt một hệ thống, đủ field và có quyền API. Nếu guide đã tồn tại nhưng ticket vẫn phát sinh thì cần kiểm tra người dùng có tìm thấy tài liệu không, tài liệu có còn đúng không và vấn đề có thực sự giải quyết được bằng guide hay không.
-
-### 9.4. TMS — ưu tiên nhận diện incident
-
-TMS có 20 ticket, trong đó 18 ticket thuộc chấm công hoặc lỗi hệ thống.
-
-Các ticket này cần được bổ sung thông tin:
-
-Thời gian → cơ sở/khu vực → ca làm việc → người bị ảnh hưởng → số người cùng gặp → triệu chứng.
-
-Nếu nhiều ticket trùng thời gian, khu vực và triệu chứng thì support cần kiểm tra khả năng chúng thuộc cùng một incident.
-
-Đây cũng là chỗ có thể auto: máy so khớp thời gian / khu vực / triệu chứng rồi gắn các ticket vào một nhóm. Support xác nhận incident, không để máy tự sửa bảng công hay tự kết luận root cause.
-
-Mục tiêu là tránh nhiều support cùng điều tra một nguyên nhân dưới nhiều ticket khác nhau.
-
-### 9.5. Guide / tài liệu — không mặc định “có ticket thì viết guide”
-
-Guide chỉ phù hợp khi nguyên nhân ticket thực sự liên quan đến việc người dùng thiếu hướng dẫn.
-
-Nếu chưa có guide và thao tác có thể tự thực hiện, có thể bổ sung tài liệu.
-
-Nếu đã có guide nhưng ticket vẫn tiếp tục phát sinh, cần kiểm tra:
-
-- người dùng có biết guide tồn tại không;
-- guide có dễ tìm không;
-- nội dung còn đúng với hệ thống hiện tại không;
-- người dùng đọc guide nhưng vẫn không thực hiện được;
-- hay vấn đề thực chất là quyền hoặc lỗi hệ thống.
-
-Nếu nguyên nhân chỉ là khó tìm tài liệu, có thể thử auto-reply kèm đúng guide khi ticket được tạo. Hiệu quả cần được đánh giá bằng số ticket người dùng tự xử lý được sau khi nhận tài liệu, thay vì chỉ đo số lần guide được gửi.
-
-## 10. Kết luận
+## 9. Kết luận
 
 Phân tích 131 ticket cho thấy khối lượng support tập trung chủ yếu tại CRM, LMS và TMS, với tổng cộng 83 ticket, chiếm 63,4%.
 
@@ -491,7 +395,7 @@ Tuy nhiên, số lượng ticket chỉ giúp xác định nơi cần ưu tiên x
 
 Trên CRM, Payment là nhóm lớn nhất nhưng gồm nhiều loại yêu cầu nghiệp vụ và chưa có dữ liệu root cause. Vẫn có thể auto-reply, form và chuyển kế toán. Chưa auto sửa payment trong tuần 5; workflow ghi dữ liệu chỉ tính sau khi biết tỷ trọng nguyên nhân.
 
-Trên LMS, ticket tập trung vào Enroll và quản lý lớp/giáo viên/học phần. Với Enroll, cần phân biệt vấn đề do thao tác, dữ liệu, quyền hay lỗi hệ thống; đồng thời không gộp quy trình LMS với CRM chỉ vì cùng tên nghiệp vụ.
+Trên LMS, ticket tập trung vào Enroll (9) và quản lý lớp/giáo viên/học phần (7). Enroll LMS xử lý trên LMS: phân biệt thao tác, dữ liệu lớp/học viên, quyền hay lỗi hệ thống.
 
 Trên TMS, 90% ticket nằm ở chấm công hoặc lỗi hệ thống. Các ticket có cùng thời gian, khu vực và triệu chứng cần được kiểm tra theo hướng incident chung để tránh xử lý lặp lại.
 

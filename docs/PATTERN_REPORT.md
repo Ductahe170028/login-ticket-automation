@@ -6,20 +6,14 @@
 
 **Cách phân loại:** Ticket được phân nhóm theo hệ thống + nội dung yêu cầu trong Subject. Những ticket có cùng tên vấn đề nhưng nằm trên các hệ thống khác nhau không được mặc định là cùng nguyên nhân hoặc cùng cách xử lý.
 
-## 1. Mục tiêu và cách đọc báo cáo
+## 1. Mục tiêu
 
-Báo cáo này không chỉ trả lời câu hỏi “có bao nhiêu ticket?”, mà đi theo chuỗi:
-
-Volume → Pattern → Giả thuyết nguyên nhân → Hướng xử lý → Dữ liệu cần đo thêm
-
-Mục tiêu là trả lời bốn câu hỏi:
+Báo cáo trả lời bốn câu hỏi:
 
 - Ticket đang tập trung ở đâu?
 - Trong các khu vực đó, người dùng thực sự đang gặp loại vấn đề nào?
 - Support đang phải xử lý theo kiểu nào: hướng dẫn, xin quyền, điều tra lỗi, chuyển bộ phận hay thao tác lặp lại?
 - Với từng kiểu vấn đề, hướng cải thiện nào hợp lý và cần đo thêm gì trước khi kết luận?
-
-Volume dùng để xác định nơi cần nhìn vào trước. Giải pháp chỉ được đề xuất sau khi xem pattern và cách support thực sự xử lý.
 
 ## 2. Bức tranh tổng thể: ticket đang tập trung ở đâu?
 

@@ -2,9 +2,7 @@
 
 **Nguồn dữ liệu:** Helpdesk export `sample.xlsx` — Plan tuần 5  
 **Bản dữ liệu dùng để phân tích:** `sample-tickets.csv`  
-**Phạm vi:** 131 ticket Technical Support có mã không trùng lặp.
-
-**Cách phân loại:** Ticket được phân nhóm theo hệ thống + nội dung yêu cầu trong Subject. Những ticket có cùng tên vấn đề nhưng nằm trên các hệ thống khác nhau không được mặc định là cùng nguyên nhân hoặc cùng cách xử lý.
+**Phạm vi:** 131 ticket Technical Support.
 
 ## 1. Mục tiêu
 
@@ -505,7 +503,3 @@ Từ dữ liệu hiện tại, hướng ưu tiên là:
 - Payment / Enroll / Lead: triển khai auto hỗ trợ (form, auto-reply, chuyển đội) khi nguyên nhân phù hợp; workflow ghi dữ liệu làm sau.
 - TMS: auto gợi ý ticket cùng triệu chứng; người xác nhận incident.
 - Chỉ auto thao tác dữ liệu khi điều kiện đủ rõ và rủi ro chấp nhận được.
-
-Kết luận chính của báo cáo là:
-
-Volume cho biết nên nhìn vào đâu; pattern cho biết support đang lặp lại việc gì; root cause cho biết vì sao ticket phát sinh. Chỉ sau khi xác định được ba yếu tố này mới nên lựa chọn giải pháp cải thiện.

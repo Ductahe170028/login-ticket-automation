@@ -240,16 +240,111 @@ High + Urgent có 82/131 ticket, chiếm 62,6%. Chưa kết luận đây là s�
 
 ## 8. Hướng xử lý theo từng hệ thống
 
-| Hệ thống | Việc | Số | Ticket đang gặp | Cần tách / chưa biết | Form | Tài liệu / auto-reply | Auto khác | Không auto | Việc tiếp / đo |
-| --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
-| CRM | Thanh toán | 13 | Tạo QR; add/gỡ payment; hủy hoặc confirm giao dịch; cập nhật trạng thái đóng tiền; hóa đơn; mã giảm giá. 13 phiếu = một nghiệp vụ, chưa phải 13 lần cùng một lỗi CRM. | Tỷ trọng: chưa biết thao tác / thiếu quyền / thiếu field / CRM lỗi / bắt buộc người kiểm soát. File không có log xử lý. | Bắt buộc trước khi mở phiếu: mã lead, số tiền, việc cần làm (tạo QR / add-gỡ / hủy-confirm / đóng tiền / hóa đơn / mã giảm giá), thao tác đã thử. Thiếu field thì chưa mở phiếu. | Chưa có bài payment CRM và user tự làm được bước đó → viết bài payment CRM (QR, add/gỡ, hủy-confirm, đóng tiền, hóa đơn, mã giảm giá). Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn khớp thao tác hiện tại không, hay thực chất thiếu quyền / lỗi CRM. Chỉ khó tìm → auto-reply + gắn file payment CRM. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. | Auto chuyển kế toán khi phiếu đủ field và việc thuộc kế toán. | Không auto sửa số tiền, trạng thái đóng tiền, hay bản ghi payment. | Ghi từng phiếu: nguyên nhân cuối, người xử lý, thao tác đã làm, có hỏi thêm không, thời gian, kết quả. Có tỷ trọng rồi mới tính workflow ghi dữ liệu. |
-| CRM | Lead / trạng thái | 7 | Đổi trạng thái lead; dữ liệu lead sai; không thao tác được trên lead. | Thiếu thông tin đầu vào, thiếu quyền, hay lỗi CRM khi xử lý lead. | Bắt buộc: mã lead, trạng thái hiện tại, trạng thái mong muốn, lý do đổi. Thiếu field thì chưa mở phiếu. | Chưa có bài đổi trạng thái lead CRM và user tự làm được → viết bài lead CRM. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không, hay thiếu quyền. Chỉ khó tìm → auto-reply + gắn file lead CRM. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. | Auto chuyển người có quyền đổi trạng thái khi phiếu đủ field. | Không auto đổi trạng thái lead. | Ghi tỷ trọng: thao tác / quyền / lỗi. |
-| CRM | Enroll | 6 | Thao tác enrollment trên CRM; chỉnh sửa thông tin trên enrollment. | Bước nào support đang làm tay lặp lại; thiếu field hay thiếu quyền. | Bắt buộc: mã enrollment / lead, trường cần sửa, giá trị hiện tại / mong muốn. Thiếu field thì chưa mở phiếu. | Chưa có bài enrollment CRM và user tự sửa được → viết bài enroll CRM. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không. Chỉ khó tìm → auto-reply + gắn file enroll CRM. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. | — | Không auto ghi enrollment CRM trong tuần 5. | Workflow enroll CRM: sau này, khi có API và field đủ. |
-| LMS | Enroll | 9 | Thêm học viên; không tìm thấy lớp hoặc slot; enroll trùng; lỗi trong quá trình enroll. | Thao tác chưa đúng / dữ liệu HV-lớp thiếu hoặc sai / không đủ quyền / LMS lỗi. File không ghi đã có guide hay chưa. | Bắt buộc: mã lớp, tên HV, SĐT, thao tác đã thử. Thiếu field thì chưa mở phiếu. | Chưa có bài enroll LMS và user tự enroll được → viết bài enroll LMS (add HV, tìm lớp/slot, enroll trùng). Đã có bài mà ticket vẫn vào → user có tìm thấy bài không, bài còn đúng giao diện hiện tại không, hay thực chất là quyền / lỗi LMS. Chỉ khó tìm → auto-reply + gắn file enroll LMS. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. | — | Không auto ghi enroll LMS trong tuần 5. | Workflow enroll LMS: sau này, khi có API LMS và field đủ. |
-| LMS | Lớp / GV / học phần | 7 | Không thêm được giáo viên; điều chỉnh lớp; lỗi học phần. | Yêu cầu cần người có quyền chỉnh lớp/GV/học phần, hay chức năng lỗi. | Bắt buộc: mã lớp / học phần, việc cần làm, ảnh lỗi nếu không thao tác được. Thiếu field thì chưa mở phiếu. | Chưa có bài chỉnh lớp/GV/học phần LMS và user tự làm được → viết bài lớp-GV-học phần LMS. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không, hay thiếu quyền / lỗi chức năng. Chỉ khó tìm → auto-reply + gắn file lớp LMS. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. | Auto chuyển người có quyền nếu là nghiệp vụ. | Không auto sửa lớp/GV/học phần. | Lỗi chức năng: ghi thao tác, dữ liệu đầu vào, ảnh lỗi, phạm vi ảnh hưởng → Dev. |
-| TMS | Chấm công | 12 | Không hiển thị công; không duyệt được công; cần bù công; đi đúng ca nhưng hệ thống báo trễ; điểm danh / chấm công giáo viên. | Triệu chứng: không có dữ liệu / dữ liệu sai / không duyệt được / ghi nhận sai thời gian. Phạm vi: một người / một ca / một cơ sở / nhiều cơ sở. Root cause chưa có. | Bắt buộc: cơ sở, thời điểm, ca làm việc, người bị ảnh hưởng, số người cùng gặp, triệu chứng, ảnh lỗi. Thiếu field thì chưa mở phiếu. | Chưa có bài duyệt/xem công TMS và user tự làm được bước đó → viết bài chấm công TMS. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không, hay dữ liệu/hệ thống lỗi. Chỉ khó tìm → auto-reply + gắn file chấm công TMS. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. | Auto gắn / gợi ý các phiếu cùng cơ sở + thời điểm + triệu chứng. | Không auto sửa bảng công. | Người xác nhận incident. Ghi nguyên nhân từng cụm phiếu. |
-| TMS | Lỗi hệ thống | 6 | Mất dữ liệu; không hiển thị thông tin; không thao tác được. Ticket 233 và 234 cùng Tỉnh Nam 2, triệu chứng tương tự, cùng nhắc lỗi từ ngày 31. | Cùng root cause hay không. Chưa đủ dữ liệu để khẳng định. | Bắt buộc: cơ sở, thời điểm, triệu chứng, số người bị ảnh hưởng, ảnh lỗi. Thiếu field thì chưa mở phiếu. | Không lấy bài hướng dẫn thao tác làm hướng chính. | Auto gom phiếu trùng hệ thống + khu vực + thời gian + triệu chứng (ví dụ cụm Nam 2). | Không để máy tự kết luận cùng root cause. | Support xác nhận incident rồi liên kết điều tra. |
-| Denise, TMS, Mail, Ecount, Nội bộ, LMS, CRM | Không đăng nhập / khóa / quên mật khẩu | 12 | 12 phiếu trên 7 hệ thống (Denise 2, TMS 2, Mail 2, Ecount 2, Nội bộ 2, LMS 1, CRM 1). Không hệ thống nào chiếm phần lớn. Chuỗi: xác định user → trạng thái nhân sự → trạng thái tài khoản → nguyên nhân → reset/mở khóa nếu đủ điều kiện → phản hồi. | Workflow đang cover được bao nhiêu hệ thống trong 7 hệ thống trên. | Bắt buộc: hệ thống, user/email, triệu chứng (quên mật khẩu / khóa / không vào được). Thiếu field thì chưa mở phiếu. | Chưa có bài đăng nhập từng hệ thống và user tự làm được bước không cần reset → viết bài đúng hệ thống đó. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không. Chỉ khó tìm → auto-reply + gắn file đúng hệ thống. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. Phần còn lại vào workflow. | **Đã triển khai** workflow login (tuần 5). Chỉ chạy trên hệ thống tool truy cập được. | Không giả định 12 phiếu đều vào được workflow. | Đo: số phiếu vào workflow; xử lý hết; chỉ hỗ trợ kiểm tra; không xử lý được + lý do; thời gian trước/sau. |
+### 8.1. CRM — Thanh toán (13)
+
+Ticket: tạo QR; add/gỡ payment; hủy hoặc confirm giao dịch; cập nhật trạng thái đóng tiền; hóa đơn; mã giảm giá. 13 phiếu là một nghiệp vụ, chưa phải 13 lần cùng một lỗi CRM.
+
+Cần tách tỷ trọng: chưa biết thao tác / thiếu quyền / thiếu field / CRM lỗi / bắt buộc người kiểm soát. File không có log xử lý.
+
+Form trước khi mở phiếu: mã lead, số tiền, việc cần làm (tạo QR / add-gỡ / hủy-confirm / đóng tiền / hóa đơn / mã giảm giá), thao tác đã thử. Thiếu field thì chưa mở phiếu.
+
+Chưa có bài payment CRM và user tự làm được bước đó → viết bài payment CRM (QR, add/gỡ, hủy-confirm, đóng tiền, hóa đơn, mã giảm giá). Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn khớp thao tác hiện tại không, hay thực chất thiếu quyền / lỗi CRM. Chỉ khó tìm → auto-reply + gắn file payment CRM. Đo bằng số phiếu user tự xong sau khi nhận tài liệu.
+
+Auto chuyển kế toán khi phiếu đủ field và việc thuộc kế toán. Không auto sửa số tiền, trạng thái đóng tiền, hay bản ghi payment.
+
+Việc tiếp: ghi từng phiếu nguyên nhân cuối, người xử lý, thao tác đã làm, có hỏi thêm không, thời gian, kết quả. Có tỷ trọng rồi mới tính workflow ghi dữ liệu.
+
+### 8.2. CRM — Lead / trạng thái (7)
+
+Ticket: đổi trạng thái lead; dữ liệu lead sai; không thao tác được trên lead.
+
+Cần tách: thiếu thông tin đầu vào, thiếu quyền, hay lỗi CRM khi xử lý lead.
+
+Form trước khi mở phiếu: mã lead, trạng thái hiện tại, trạng thái mong muốn, lý do đổi. Thiếu field thì chưa mở phiếu.
+
+Chưa có bài đổi trạng thái lead CRM và user tự làm được → viết bài lead CRM. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không, hay thiếu quyền. Chỉ khó tìm → auto-reply + gắn file lead CRM. Đo bằng số phiếu user tự xong sau khi nhận tài liệu.
+
+Auto chuyển người có quyền đổi trạng thái khi phiếu đủ field. Không auto đổi trạng thái lead.
+
+Việc tiếp: ghi tỷ trọng thao tác / quyền / lỗi.
+
+### 8.3. CRM — Enroll (6)
+
+Ticket: thao tác enrollment trên CRM; chỉnh sửa thông tin trên enrollment.
+
+Cần tách: bước nào support đang làm tay lặp lại; thiếu field hay thiếu quyền.
+
+Form trước khi mở phiếu: mã enrollment / lead, trường cần sửa, giá trị hiện tại / mong muốn. Thiếu field thì chưa mở phiếu.
+
+Chưa có bài enrollment CRM và user tự sửa được → viết bài enroll CRM. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không. Chỉ khó tìm → auto-reply + gắn file enroll CRM. Đo bằng số phiếu user tự xong sau khi nhận tài liệu.
+
+Không auto ghi enrollment CRM trong tuần 5. Workflow enroll CRM làm sau, khi có API và field đủ.
+
+### 8.4. LMS — Enroll (9)
+
+Ticket: thêm học viên; không tìm thấy lớp hoặc slot; enroll trùng; lỗi trong quá trình enroll.
+
+Cần tách: thao tác chưa đúng / dữ liệu HV-lớp thiếu hoặc sai / không đủ quyền / LMS lỗi. File không ghi đã có guide hay chưa.
+
+Form trước khi mở phiếu: mã lớp, tên HV, SĐT, thao tác đã thử. Thiếu field thì chưa mở phiếu.
+
+Chưa có bài enroll LMS và user tự enroll được → viết bài enroll LMS (add HV, tìm lớp/slot, enroll trùng). Đã có bài mà ticket vẫn vào → user có tìm thấy bài không, bài còn đúng giao diện hiện tại không, hay thực chất là quyền / lỗi LMS. Chỉ khó tìm → auto-reply + gắn file enroll LMS. Đo bằng số phiếu user tự xong sau khi nhận tài liệu.
+
+Không auto ghi enroll LMS trong tuần 5. Workflow enroll LMS làm sau, khi có API LMS và field đủ.
+
+### 8.5. LMS — Lớp / GV / học phần (7)
+
+Ticket: không thêm được giáo viên; điều chỉnh lớp; lỗi học phần.
+
+Cần tách: yêu cầu cần người có quyền chỉnh lớp/GV/học phần, hay chức năng lỗi.
+
+Form trước khi mở phiếu: mã lớp / học phần, việc cần làm, ảnh lỗi nếu không thao tác được. Thiếu field thì chưa mở phiếu.
+
+Chưa có bài chỉnh lớp/GV/học phần LMS và user tự làm được → viết bài lớp-GV-học phần LMS. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không, hay thiếu quyền / lỗi chức năng. Chỉ khó tìm → auto-reply + gắn file lớp LMS. Đo bằng số phiếu user tự xong sau khi nhận tài liệu.
+
+Auto chuyển người có quyền nếu là nghiệp vụ. Không auto sửa lớp/GV/học phần.
+
+Lỗi chức năng: ghi thao tác, dữ liệu đầu vào, ảnh lỗi, phạm vi ảnh hưởng → Dev.
+
+### 8.6. TMS — Chấm công (12)
+
+Ticket: không hiển thị công; không duyệt được công; cần bù công; đi đúng ca nhưng hệ thống báo trễ; điểm danh / chấm công giáo viên.
+
+Cần tách triệu chứng: không có dữ liệu / dữ liệu sai / không duyệt được / ghi nhận sai thời gian. Phạm vi: một người / một ca / một cơ sở / nhiều cơ sở. Root cause chưa có.
+
+Form trước khi mở phiếu: cơ sở, thời điểm, ca làm việc, người bị ảnh hưởng, số người cùng gặp, triệu chứng, ảnh lỗi. Thiếu field thì chưa mở phiếu.
+
+Chưa có bài duyệt/xem công TMS và user tự làm được bước đó → viết bài chấm công TMS. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không, hay dữ liệu/hệ thống lỗi. Chỉ khó tìm → auto-reply + gắn file chấm công TMS. Đo bằng số phiếu user tự xong sau khi nhận tài liệu.
+
+Auto gắn / gợi ý các phiếu cùng cơ sở + thời điểm + triệu chứng. Không auto sửa bảng công. Người xác nhận incident. Ghi nguyên nhân từng cụm phiếu.
+
+### 8.7. TMS — Lỗi hệ thống (6)
+
+Ticket: mất dữ liệu; không hiển thị thông tin; không thao tác được. Ticket 233 và 234 cùng Tỉnh Nam 2, triệu chứng tương tự, cùng nhắc lỗi từ ngày 31.
+
+Cần tách: cùng root cause hay không. Chưa đủ dữ liệu để khẳng định.
+
+Form trước khi mở phiếu: cơ sở, thời điểm, triệu chứng, số người bị ảnh hưởng, ảnh lỗi. Thiếu field thì chưa mở phiếu.
+
+Không lấy bài hướng dẫn thao tác làm hướng chính.
+
+Auto gom phiếu trùng hệ thống + khu vực + thời gian + triệu chứng (ví dụ cụm Nam 2). Không để máy tự kết luận cùng root cause. Support xác nhận incident rồi liên kết điều tra.
+
+### 8.8. Không đăng nhập / khóa / quên mật khẩu — 12 ticket trên 7 hệ thống
+
+Denise 2, TMS 2, Mail 2, Ecount 2, Nội bộ 2, LMS 1, CRM 1. Không hệ thống nào chiếm phần lớn.
+
+Chuỗi xử lý: xác định user → trạng thái nhân sự → trạng thái tài khoản → nguyên nhân → reset/mở khóa nếu đủ điều kiện → phản hồi.
+
+Cần tách: workflow đang cover được bao nhiêu hệ thống trong 7 hệ thống trên.
+
+Form trước khi mở phiếu: hệ thống, user/email, triệu chứng (quên mật khẩu / khóa / không vào được). Thiếu field thì chưa mở phiếu.
+
+Chưa có bài đăng nhập từng hệ thống và user tự làm được bước không cần reset → viết bài đúng hệ thống đó. Đã có bài mà ticket vẫn vào → bài có tìm thấy không, còn đúng không. Chỉ khó tìm → auto-reply + gắn file đúng hệ thống. Đo bằng số phiếu user tự xong sau khi nhận tài liệu. Phần còn lại vào workflow.
+
+Đã triển khai workflow login (tuần 5). Chỉ chạy trên hệ thống tool truy cập được. Không giả định 12 phiếu đều vào được workflow.
+
+Đo: số phiếu vào workflow; xử lý hết; chỉ hỗ trợ kiểm tra; không xử lý được + lý do; thời gian trước/sau.
 
 ## 9. Kết luận
 
